@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcddb28bf391e4cc98585e60413447f5, type: 3}
+  m_Name: FrenchLocalization
+  m_EditorClassIdentifier: 
+  _localizationLanguage: 14
+  _localizedStrings:
+  - _key: GAME_OVER
+    _value: Fin du Jeu!
+  - _key: BEST_SCORE
+    _value: 'Meilleur Score: {0}'
+  - _key: LAST_SCORE
+    _value: 'Score Actuel: {0}'
+  - _key: LOADING
+    _value: La Charge
+  - _key: NOTIFICATION_CAN_YOU_GO_HIGHER_TITLE
+    _value: "\U0001F3C6 Peux-tu aller plus haut ?"
+  - _key: NOTIFICATION_CAN_YOU_GO_HIGHER_SUBTITLE
+    _value: "\U0001F525 C'est parti pour voir !"
+  - _key: NOTIFICATION_PLATFORMS_MISS_YOU_TITLE
+    _value: "\U0001F680 Les plateformes te manquent !"
+  - _key: NOTIFICATION_PLATFORMS_MISS_YOU_SUBTITLE
+    _value: "\U0001F3AE Reviens et bats ton record !"
+  - _key: SETTINGS
+    _value: "Param\xE8tres"
+  - _key: CONTINUE
+    _value: Continuer
+  - _key: SCORE
+    _value: Score

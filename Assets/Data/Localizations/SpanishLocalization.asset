@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcddb28bf391e4cc98585e60413447f5, type: 3}
+  m_Name: SpanishLocalization
+  m_EditorClassIdentifier: 
+  _localizationLanguage: 34
+  _localizedStrings:
+  - _key: GAME_OVER
+    _value: "\xA1Juego Terminado!"
+  - _key: BEST_SCORE
+    _value: 'Mejor Puntaje: {0}'
+  - _key: LAST_SCORE
+    _value: 'Puntaje Actual: {0}'
+  - _key: LOADING
+    _value: CARREGANDO
+  - _key: NOTIFICATION_CAN_YOU_GO_HIGHER_TITLE
+    _value: "\U0001F3C6 \xBFPuedes saltar m\xE1s alto?"
+  - _key: NOTIFICATION_CAN_YOU_GO_HIGHER_SUBTITLE
+    _value: "\U0001F525 \xA1Vamos a comprobarlo!"
+  - _key: NOTIFICATION_PLATFORMS_MISS_YOU_TITLE
+    _value: "\U0001F680 \xA1Las plataformas te extra\xF1an!"
+  - _key: NOTIFICATION_PLATFORMS_MISS_YOU_SUBTITLE
+    _value: "\U0001F3AE Vuelve y supera tu r\xE9cord!"
+  - _key: CONTINUE
+    _value: Continuar!
+  - _key: SETTINGS
+    _value: "Configuraci\xF3n"
+  - _key: SCORE
+    _value: "Puntuaci\xF3n"

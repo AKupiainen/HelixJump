@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fb1332deb6ca42cb8902dc6016155f9, type: 3}
+  m_Name: BallJump
+  m_EditorClassIdentifier: Assembly-CSharp:Volpi.Entertaiment.SDK.Utilities:Sfx
+  _clip: {fileID: 8300000, guid: ebe3a7f7f105c40a4aad729e94b59c69, type: 3}
+  _volume: 1
+  _pitch: 1
+  _loop: 0

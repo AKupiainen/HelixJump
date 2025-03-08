@@ -1,0 +1,28 @@
+# Keep all classes in the com.google.unity package
+-keep class com.google.unity.** {
+   *;
+}
+
+# Keep all public classes in the com.google.android.gms.ads package
+-keep public class com.google.android.gms.ads.**{
+   public *;
+}
+
+# Keep all public classes in the com.google.ads package
+-keep public class com.google.ads.**{
+   public *;
+}
+
+# Keep all annotations
+-keepattributes *Annotation*
+
+# Don't obfuscate (this line can be used for all classes where obfuscation is not needed)
+-dontobfuscate
+
+# GameAnalytics ProGuard rules:
+# Keep all classes in the com.gameanalytics.sdk package
+-keep class com.gameanalytics.sdk.** { *; }
+
+# Keep the methods used by GameAnalytics
+-keep class com.gameanalytics.sdk.GameAnalytics { *; }
+-keep class com.gameanalytics.sdk.GameAnalytics$** { *; }

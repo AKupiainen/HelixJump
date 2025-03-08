@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcddb28bf391e4cc98585e60413447f5, type: 3}
+  m_Name: EnglishLocalization
+  m_EditorClassIdentifier: 
+  _localizationLanguage: 10
+  _localizedStrings:
+  - _key: GAME_OVER
+    _value: Game Over!
+  - _key: BEST_SCORE
+    _value: 'Best Score: {0}'
+  - _key: LAST_SCORE
+    _value: 'Current Score: {0}'
+  - _key: LOADING
+    _value: LOADING
+  - _key: NOTIFICATION_CAN_YOU_GO_HIGHER_TITLE
+    _value: "\U0001F3C6 \U0001F3C6 Can You Go Higher?"
+  - _key: NOTIFICATION_CAN_YOU_GO_HIGHER_SUBTITLE
+    _value: "\U0001F525 \U0001F525 Let\u2019s bounce and find out!"
+  - _key: NOTIFICATION_PLATFORMS_MISS_YOU_TITLE
+    _value: "\U0001F680 \U0001F680 The Platforms Miss You!"
+  - _key: NOTIFICATION_PLATFORMS_MISS_YOU_SUBTITLE
+    _value: "\U0001F3AE \U0001F3AE Hop back in and beat your high score!"
+  - _key: CONTINUE
+    _value: Continue
+  - _key: SETTINGS
+    _value: Settings
+  - _key: SCORE
+    _value: Score
