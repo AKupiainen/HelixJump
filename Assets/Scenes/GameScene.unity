@@ -4212,39 +4212,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 0
     m_RotationOrder: 4
-  overrideMultiplierControlCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.71727884
-      value: 0.29886636
-      inSlope: 0.8658797
-      outSlope: 0.8658797
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.858224
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   PlayerAnimationSpeed: 2.2
   playerPositionOnZAxis: -2.4
   playerScaleWhenItIsBreakingPlatforms: {x: 1, y: 0.6, z: 0.6}
@@ -4378,7 +4345,7 @@ MonoBehaviour:
     m_NumColorKeys: 3
     m_NumAlphaKeys: 2
   BackgroundRandomColorPairs:
-  - BackgroundColorTop:
+  - _backgroundColorTop:
       serializedVersion: 2
       key0: {r: 0, g: 0.03951145, b: 0.8396226, a: 1}
       key1: {r: 0, g: 0.6892342, b: 0.8490566, a: 1}
@@ -4408,7 +4375,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    BackgroundColorBottom:
+    _backgroundColorBottom:
       serializedVersion: 2
       key0: {r: 0, g: 0.6867922, b: 0.8584906, a: 1}
       key1: {r: 0, g: 0.8301887, b: 0.6413616, a: 1}
@@ -4438,7 +4405,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-  - BackgroundColorTop:
+  - _backgroundColorTop:
       serializedVersion: 2
       key0: {r: 0.7924528, g: 0, b: 0, a: 1}
       key1: {r: 0.8018868, g: 0.31446543, b: 0, a: 1}
@@ -4468,7 +4435,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    BackgroundColorBottom:
+    _backgroundColorBottom:
       serializedVersion: 2
       key0: {r: 0.7735849, g: 0.4156123, b: 0, a: 1}
       key1: {r: 0.7924528, g: 0.7800222, b: 0, a: 1}
@@ -4498,7 +4465,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-  - BackgroundColorTop:
+  - _backgroundColorTop:
       serializedVersion: 2
       key0: {r: 0.09210106, g: 0.33962262, b: 0, a: 1}
       key1: {r: 0, g: 0.6886792, b: 0.41590828, a: 1}
@@ -4528,7 +4495,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    BackgroundColorBottom:
+    _backgroundColorBottom:
       serializedVersion: 2
       key0: {r: 0, g: 0.46226418, b: 0.2637276, a: 1}
       key1: {r: 0, g: 0.636626, b: 0.6792453, a: 1}
@@ -4558,7 +4525,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-  - BackgroundColorTop:
+  - _backgroundColorTop:
       serializedVersion: 2
       key0: {r: 0.23845856, g: 0, b: 0.509434, a: 1}
       key1: {r: 0, g: 0.4161302, b: 0.6981132, a: 1}
@@ -4588,7 +4555,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    BackgroundColorBottom:
+    _backgroundColorBottom:
       serializedVersion: 2
       key0: {r: 0, g: 0.32331976, b: 0.6320754, a: 1}
       key1: {r: 0, g: 0.518202, b: 0.6509434, a: 1}
@@ -4618,7 +4585,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-  - BackgroundColorTop:
+  - _backgroundColorTop:
       serializedVersion: 2
       key0: {r: 0.5377358, g: 0, b: 0.1762579, a: 1}
       key1: {r: 0.57412404, g: 0, b: 0.6698113, a: 1}
@@ -4648,7 +4615,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    BackgroundColorBottom:
+    _backgroundColorBottom:
       serializedVersion: 2
       key0: {r: 0.6132076, g: 0, b: 0.49989754, a: 1}
       key1: {r: 0.16295025, g: 0, b: 0.6603774, a: 1}
@@ -4759,20 +4726,21 @@ MonoBehaviour:
   levelIndicatorSource: {fileID: 804381244}
   levelIndicatorTarget: {fileID: 1469274933}
   gameEndUI:
-    GameEndUIParent: {fileID: 690298327}
-    backgroundPanel: {fileID: 543753824}
-    totalScoreValue: {fileID: 906332939}
-    totalScoreText: {fileID: 2014834038}
-    currentScoreText: {fileID: 191731444}
-    currentScoreValue: {fileID: 1630315623}
-    touchToRestartText: {fileID: 657572859}
-    passAllLevelsInfoText: {fileID: 20257319}
-    touchToContinue: {fileID: 1278212940}
-    gameOverInfoText: {fileID: 170712788}
-    passedInfoText: {fileID: 917308089}
-    secondChanceCounterText: {fileID: 1573949767}
-    secondChanceInfoText: {fileID: 41281982}
-    secondChanceWatchAdText: {fileID: 1376027100}
+    _gameEndUIParent: {fileID: 690298327}
+    _backgroundPanel: {fileID: 543753824}
+    _totalScoreValue: {fileID: 906332939}
+    _totalScoreText: {fileID: 2014834038}
+    _currentScoreText: {fileID: 191731444}
+    _currentScoreValue: {fileID: 1630315623}
+    _touchToRestartText: {fileID: 657572859}
+    _passAllLevelsInfoText: {fileID: 20257319}
+    _touchToContinue: {fileID: 1278212940}
+    _gameOverInfoText: {fileID: 170712788}
+    _passedInfoText: {fileID: 917308089}
+    _secondChanceCounterText: {fileID: 1573949767}
+    _secondChanceInfoText: {fileID: 41281982}
+    _secondChanceWatchAdText: {fileID: 1376027100}
+    _secondChanceAnimator: {fileID: 1573949769}
   isSecondChanceActive: 1
   secondChanceTimeCounterMax: 3
   secondChanceLimit: 1
@@ -4803,7 +4771,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   AutoGeneratorColorPairs:
-  - normalPlatformGradientColor:
+  - _normalPlatformGradientColor:
       serializedVersion: 2
       key0: {r: 1, g: 0, b: 0, a: 1}
       key1: {r: 1, g: 0, b: 0.64123726, a: 1}
@@ -4833,7 +4801,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    obstaclePlatformGradientColor:
+    _obstaclePlatformGradientColor:
       serializedVersion: 2
       key0: {r: 0, g: 0, b: 0, a: 0}
       key1: {r: 0, g: 0, b: 0, a: 0}
@@ -4863,7 +4831,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-  - normalPlatformGradientColor:
+  - _normalPlatformGradientColor:
       serializedVersion: 2
       key0: {r: 0.9764652, g: 1, b: 0, a: 1}
       key1: {r: 1, g: 0.4837746, b: 0, a: 1}
@@ -4893,7 +4861,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    obstaclePlatformGradientColor:
+    _obstaclePlatformGradientColor:
       serializedVersion: 2
       key0: {r: 0, g: 0, b: 0, a: 0}
       key1: {r: 0, g: 0, b: 0, a: 0}
@@ -4923,7 +4891,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-  - normalPlatformGradientColor:
+  - _normalPlatformGradientColor:
       serializedVersion: 2
       key0: {r: 0, g: 0.40600348, b: 1, a: 1}
       key1: {r: 0, g: 1, b: 0.5422628, a: 1}
@@ -4953,7 +4921,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    obstaclePlatformGradientColor:
+    _obstaclePlatformGradientColor:
       serializedVersion: 2
       key0: {r: 0, g: 0, b: 0, a: 0}
       key1: {r: 0, g: 0, b: 0, a: 0}
@@ -4983,7 +4951,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-  - normalPlatformGradientColor:
+  - _normalPlatformGradientColor:
       serializedVersion: 2
       key0: {r: 0.34394217, g: 0, b: 1, a: 1}
       key1: {r: 0, g: 0.77020264, b: 1, a: 1}
@@ -5013,7 +4981,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    obstaclePlatformGradientColor:
+    _obstaclePlatformGradientColor:
       serializedVersion: 2
       key0: {r: 0, g: 0, b: 0, a: 0}
       key1: {r: 0, g: 0, b: 0, a: 0}
@@ -5043,7 +5011,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-  - normalPlatformGradientColor:
+  - _normalPlatformGradientColor:
       serializedVersion: 2
       key0: {r: 1, g: 0.2119225, b: 0, a: 1}
       key1: {r: 0.7597718, g: 1, b: 0, a: 1}
@@ -5073,7 +5041,7 @@ MonoBehaviour:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    obstaclePlatformGradientColor:
+    _obstaclePlatformGradientColor:
       serializedVersion: 2
       key0: {r: 0, g: 0, b: 0, a: 0}
       key1: {r: 0, g: 0, b: 0, a: 0}
@@ -5292,35 +5260,35 @@ MonoBehaviour:
   isToleranceEnabled: 1
   hittingToleranceAmount: 0.75
   platformSamples:
-  - count: 4
-    height: 0.7
-    normalPlatformSample: {fileID: 6079217836739792461, guid: 0daf348078cf3704d97e4115a42a2d3f,
+  - _count: 4
+    _height: 0.7
+    _normalPlatformSample: {fileID: 6079217836739792461, guid: 0daf348078cf3704d97e4115a42a2d3f,
       type: 3}
-    obstaclePlatformSample: {fileID: 6079217836739792461, guid: 0daf348078cf3704d97e4115a42a2d3f,
+    _obstaclePlatformSample: {fileID: 6079217836739792461, guid: 0daf348078cf3704d97e4115a42a2d3f,
       type: 3}
-  - count: 6
-    height: 0.7
-    normalPlatformSample: {fileID: 7084817289758840599, guid: 4265a7b644ed2574d92f1e49d947a763,
+  - _count: 6
+    _height: 0.7
+    _normalPlatformSample: {fileID: 7084817289758840599, guid: 4265a7b644ed2574d92f1e49d947a763,
       type: 3}
-    obstaclePlatformSample: {fileID: 7084817289758840599, guid: 4265a7b644ed2574d92f1e49d947a763,
+    _obstaclePlatformSample: {fileID: 7084817289758840599, guid: 4265a7b644ed2574d92f1e49d947a763,
       type: 3}
-  - count: 8
-    height: 0.7
-    normalPlatformSample: {fileID: 7493017628486479733, guid: 1d32dd791ca162c4fb4fe3d507d8f1d0,
+  - _count: 8
+    _height: 0.7
+    _normalPlatformSample: {fileID: 7493017628486479733, guid: 1d32dd791ca162c4fb4fe3d507d8f1d0,
       type: 3}
-    obstaclePlatformSample: {fileID: 7493017628486479733, guid: 1d32dd791ca162c4fb4fe3d507d8f1d0,
+    _obstaclePlatformSample: {fileID: 7493017628486479733, guid: 1d32dd791ca162c4fb4fe3d507d8f1d0,
       type: 3}
-  - count: 3
-    height: 0.7
-    normalPlatformSample: {fileID: 5687390839999907639, guid: b294d73dda48dba48b40e0f4b24d0844,
+  - _count: 3
+    _height: 0.7
+    _normalPlatformSample: {fileID: 5687390839999907639, guid: b294d73dda48dba48b40e0f4b24d0844,
       type: 3}
-    obstaclePlatformSample: {fileID: 5687390839999907639, guid: b294d73dda48dba48b40e0f4b24d0844,
+    _obstaclePlatformSample: {fileID: 5687390839999907639, guid: b294d73dda48dba48b40e0f4b24d0844,
       type: 3}
-  - count: 5
-    height: 0.7
-    normalPlatformSample: {fileID: 639823296688632666, guid: ce07017634f510843b75d82585da0682,
+  - _count: 5
+    _height: 0.7
+    _normalPlatformSample: {fileID: 639823296688632666, guid: ce07017634f510843b75d82585da0682,
       type: 3}
-    obstaclePlatformSample: {fileID: 639823296688632666, guid: ce07017634f510843b75d82585da0682,
+    _obstaclePlatformSample: {fileID: 639823296688632666, guid: ce07017634f510843b75d82585da0682,
       type: 3}
 --- !u!1 &1178677586
 GameObject:
