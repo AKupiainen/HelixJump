@@ -75,7 +75,7 @@ public class GameManager : MonoBehaviour
     public bool isLiveAutoGeneratorActive;
     public int autoGeneratorSeed;
     public AnimationCurve autoGeneratorHardnessCurve;
-    public List<CreatorScript.AutoGeneratorColorPair> AutoGeneratorColorPairs;
+    public List<AutoGeneratorColorPair> AutoGeneratorColorPairs;
     public List<AnimationCurve> AutoGenerateScales;
     public float speedToAngle, speedTrapOccurenceDecreaser, trapOccurenceDecreaser;
     public int maxHardnessLevelNumber;
@@ -861,8 +861,8 @@ public class GameManager : MonoBehaviour
             totalStepMaxCurve.Evaluate((float)currentLevel / maxHardnessLevelNumber) * 100 + 1);
 
         string levelContent = String.Empty;
-        List<CreatorScript.AutoGeneratorColorPair> colorPairs = AutoGeneratorColorPairs;
-        CreatorScript.AutoGeneratorColorPair colorPair = colorPairs[Random.Range(0, colorPairs.Count)];
+        List<AutoGeneratorColorPair> colorPairs = AutoGeneratorColorPairs;
+        AutoGeneratorColorPair colorPair = colorPairs[Random.Range(0, colorPairs.Count)];
         int patternIndex = Random.Range(0, platformSamples.Length);
         Step pattern = platformSamples[patternIndex];
         float snapAngle = 360f / (float)pattern.count;
@@ -1046,5 +1046,11 @@ public class GameManager : MonoBehaviour
     public struct BackgroundColorPair
     {
         public Gradient BackgroundColorTop, BackgroundColorBottom;
+    }
+    
+    [Serializable]
+    public class AutoGeneratorColorPair
+    {
+        public Gradient normalPlatformGradientColor, obstaclePlatformGradientColor;
     }
 }
