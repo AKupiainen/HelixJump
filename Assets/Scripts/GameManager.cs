@@ -10,14 +10,14 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
-    //Start of Variables which are shown in Inspector
     [Header("------------------------------------Player Settings------------------------------------")]
     public AnimationCurve PlayerJumpCurve;
     public AnimationCurve PlayerBounceScaleXCurve, PlayerBounceScaleYCurve;
-    public AnimationCurve overrideMultiplierControlCurve;
+
     public float PlayerAnimationSpeed;
     public float playerPositionOnZAxis;
     public Vector3 playerScaleWhenItIsBreakingPlatforms;
+    
     [Header("-------------------------------Step Settings-------------------------------")]
     public int stepGenerationCountOnInitializing;
     public float stepBreakingSoundEffectPitchMultiplier;
@@ -85,7 +85,6 @@ public class GameManager : MonoBehaviour
     public bool isToleranceEnabled;
     public float hittingToleranceAmount;
     //Start of Variables which are not shown in Inspector
-    [HideInInspector]
     public Step[] platformSamples;
     List<StepReferenceToGame> generatedLevelSteps = new List<StepReferenceToGame>();
     Queue<StepGeneration> stepGenerationQueue = new Queue<StepGeneration>();
@@ -124,6 +123,7 @@ public class GameManager : MonoBehaviour
         StepUpdate(); // Call SteUpdate to moving and deleting steps.
         if (Player != null) PlayerUpdate(); // If there is a player, call PlayerUpdate to move player object and break platforms.
     }
+    
     public void LoadLevel(int levelNumber)
     {
         scoreValue = 0; // Section 2 - Comment: Revert all changes to restart game properly.
@@ -1034,66 +1034,17 @@ public class GameManager : MonoBehaviour
         public float height;
         public GameObject normalPlatformSample, obstaclePlatformSample;
     }
-    [System.Serializable]
+    [Serializable]
     public struct GameEndUI
     {
         public Transform GameEndUIParent;
         public Image backgroundPanel;
         public Text totalScoreValue, totalScoreText, currentScoreText, currentScoreValue, touchToRestartText, passAllLevelsInfoText, touchToContinue, gameOverInfoText, passedInfoText, secondChanceCounterText, secondChanceInfoText, secondChanceWatchAdText;
     }
-    [System.Serializable]
+    
+    [Serializable]
     public struct BackgroundColorPair
     {
         public Gradient BackgroundColorTop, BackgroundColorBottom;
-    }
-    
-    private class StepReferenceToGame
-    {
-        private readonly float _rotationSpeed;
-        private readonly int _index;
-        private readonly Transform _step;
-
-        public float RotationSpeed => _rotationSpeed;
-        public int Index => _index;
-        public Transform Step => _step;
-
-        public StepReferenceToGame(float rotationSpeed, int index, Transform step)
-        {
-            _rotationSpeed = rotationSpeed;
-            _index = index;
-            _step = step;
-        }
-    }
-
-    private class StepGeneration
-    {
-        private readonly float _rotationSpeed;
-        private readonly int _stepIndex;
-        private readonly float _stepAngle;
-        private readonly float _scaleX, _scaleZ;
-        private readonly Color _stepColor;
-        private readonly Color _obstacleColor;
-        private readonly bool[] _isObstacleArray;
-
-        public float RotationSpeed => _rotationSpeed;
-        public int StepIndex => _stepIndex;
-        public float StepAngle => _stepAngle;
-        public float ScaleX => _scaleX;
-        public float ScaleZ => _scaleZ;
-        public Color StepColor => _stepColor;
-        public Color ObstacleColor => _obstacleColor;
-        public bool[] IsObstacleArray => _isObstacleArray;
-
-        public StepGeneration(float rotationSpeed, int stepIndex, float stepAngle, Color stepColor, Color obstacleColor, float scaleX, float scaleZ, bool[] isObstacleArray)
-        {
-            _rotationSpeed = rotationSpeed;
-            _stepIndex = stepIndex;
-            _stepAngle = stepAngle;
-            _stepColor = stepColor;
-            _obstacleColor = obstacleColor;
-            _scaleX = scaleX;
-            _scaleZ = scaleZ;
-            _isObstacleArray = isObstacleArray;
-        }
     }
 }
