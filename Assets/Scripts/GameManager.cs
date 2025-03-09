@@ -23,16 +23,6 @@ public class GameManager : MonoBehaviour
     public float stepXAxisForceMultiplier;
     public float stepXAxisForceBreakingTimeMultiplier;
     public float stepTorqueMultiplier;
-    [Header("------------------------------------Star Settings------------------------------------")]
-    public Vector3 StarGenerationSize;
-    public Vector3 StarGenerationPoint;
-    public GameObject StarSample;
-    public AnimationCurve StarVisibilityCurve;
-    public float starTimeInvisibilityMultiplier;
-    public float normalStarSpeed, whenPlayerMeteorStarSpeed;
-    public int minStarCount, maxStarCount;
-    public float starAlphaTransparentMin, starAlphaTransparentMax;
-    public float starSizeMin, starSizeMax;
     [Header("------------------------------------Meteor Settings------------------------------------")]
     public float MeteorGenerateTimeCounterRandomMax;
     public float MeteorDestroyTime;
@@ -91,12 +81,8 @@ public class GameManager : MonoBehaviour
     public AnimationCurve totalStepMinCurve, totalStepMaxCurve;
     [Header("-------------------------------Other Settings-------------------------------")]
     public GameObject GameStartUI;
-    public Button VibrationButton,VibrationButtonGameEndUI;
     public bool isToleranceEnabled;
     public float hittingToleranceAmount;
-    public AudioSource musicAudioSource;
-    public Button MusicButton, MusicButtonGameEndUI;
-    public Sprite musicOnSprite, musicOffSprite;
     //Start of Variables which are not shown in Inspector
     [HideInInspector]
     public Step[] platformSamples;
@@ -147,29 +133,6 @@ public class GameManager : MonoBehaviour
         LoadLevel((SceneManager.sceneCount == 1) ? PlayerPrefs.GetInt("passed_levels") : -1); // When LevelCreator scene is opened, the scene count becomes 2, so if scene count is 1, that means the gamescene is opened and load the level, else LoadLevel(-1) => That means, the LevelCreatorScene is opened and don't load level normally.
         meteorRandomValue = Random.Range(0, MeteorGenerateTimeCounterRandomMax); // Pick a random value for meteorRandomValue, this is needed for starting of the time counter.
         audioSource = GetComponent<AudioSource>(); // Get audio source component of GameManager object, this is needed for playing sound effects.
-
-        var vibrationStatus = PlayerPrefs.GetInt("vibration",1);
-        if (vibrationStatus == 0)
-        {
-            SetVibration("1_0");
-        }else
-        {
-            SetVibration("1_1");
-        }
-        var musicStatus = PlayerPrefs.GetInt("music", 1);
-        if (musicStatus == 0)
-        {
-            SetMusicOption("1_0");
-        }
-        else
-        {
-            SetMusicOption("1_1");
-        }
-        foreach (SocialMediaPair pair in socialMediaPairs)
-        {
-            if (pair.link == "") continue;
-            pair.button.onClick.AddListener(() => { Application.OpenURL(pair.link); });
-        }
     }
     void Update()
     {
@@ -197,6 +160,7 @@ public class GameManager : MonoBehaviour
         if (isVibrationEnabled)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
+            // TODO Vibration
             Vibration.Cancel();
 #endif
         }
@@ -458,6 +422,7 @@ public class GameManager : MonoBehaviour
 #if UNITY_ANDROID && !UNITY_EDITOR
         if(isVibrationEnabled && !isToleranceEffectActivated)
         {
+            // TODO Vibration
             Vibration.Vibrate(3);
         }
 #endif
@@ -619,6 +584,7 @@ public class GameManager : MonoBehaviour
         if (isVibrationEnabled)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
+            // TODO Vibration
             Vibration.Vibrate(15);
 #endif
         }
@@ -712,7 +678,8 @@ public class GameManager : MonoBehaviour
                 if (isVibrationEnabled)
                 {
 #if UNITY_ANDROID && !UNITY_EDITOR
-                Vibration.Vibrate(new long[] { 600, 300, 600, 300 }, 1);
+                // TODO Vibration
+                //Vibration.Vibrate(new long[] { 600, 300, 600, 300 }, 1);
                 StartCoroutine(CancelVibration(3f));
 #elif UNITY_IOS && !UNITY_EDITOR
                 Handheld.Vibrate();
@@ -733,7 +700,8 @@ public class GameManager : MonoBehaviour
             if (isVibrationEnabled)
             {
 #if UNITY_ANDROID && !UNITY_EDITOR
-                Vibration.Vibrate(new long[] { 500, 100, 150, 400, 100, 150, 400, 100 }, 1);
+                // TODO Vibration
+                // Vibration.Vibrate(new long[] { 500, 100, 150, 400, 100, 150, 400, 100 }, 1);
                 StartCoroutine(CancelVibration(4));
 #elif UNITY_IOS && !UNITY_EDITOR
                 Handheld.Vibrate();
@@ -825,105 +793,8 @@ public class GameManager : MonoBehaviour
     IEnumerator CancelVibration(float time)
     {
         yield return new WaitForSeconds(time);
-        Vibration.Cancel();
-    }
-    public void SetVibration(string options)
-    {
-        var isInitialize = options.Split('_')[0] == "1";
-        var isButtonFromGameEndUI = options.Split('_')[1] == "1";
-        var vibrationButton = isButtonFromGameEndUI ? VibrationButtonGameEndUI : VibrationButton;
-        if (isInitialize)
-        {
-            var vibrationStatus = PlayerPrefs.GetInt("vibration",1);
-            if (vibrationStatus == 0)
-            {
-                VibrationButton.GetComponent<Animation>().Play("VibrationOff");
-                VibrationButtonGameEndUI.GetComponent<Animation>().Play("VibrationOff");
-                isVibrationEnabled = false;
-            }
-            else
-            {
-                vibrationButton.GetComponent<Animation>().Play("VibrationOn");
-                VibrationButtonGameEndUI.GetComponent<Animation>().Play("VibrationOn");
-                isVibrationEnabled = true;
-            }
-            return;
-        }
-        if (isVibrationEnabled)
-        {
-            isVibrationEnabled = false;
-            vibrationButton.GetComponent<Animation>().Play("VibrationOff");
-#if UNITY_ANDROID && !UNITY_EDITOR
-                Vibration.Cancel();
-#endif
-            PlayerPrefs.SetInt("vibration", 0);
-        }
-        else
-        {
-            isVibrationEnabled = true;
-            vibrationButton.GetComponent<Animation>().Play("VibrationOn");
-#if UNITY_ANDROID && !UNITY_EDITOR
-            Vibration.Vibrate(new long[] {100,100,100,100},1);
-            StartCoroutine(CancelVibration(0.8f));
-#elif UNITY_IOS && !UNITY_EDITOR
-            Handheld.Vibrate();
-#endif
-
-            PlayerPrefs.SetInt("vibration", 1);
-        }
-    }
-    public void SetMusicOption(string options)
-    {
-        var isInitialize = options.Split('_')[0] == "1";
-        var isButtonFromGameEndUI = options.Split('_')[1] == "1";
-        var musicButton = isButtonFromGameEndUI ? MusicButtonGameEndUI : MusicButton;
-        if (isInitialize)
-        {
-            var musicStatus = PlayerPrefs.GetInt("music", 1);
-            if (musicStatus == 0)
-            {
-                MusicButton.GetComponent<Image>().sprite = musicOffSprite;
-                MusicButtonGameEndUI.GetComponent<Image>().sprite = musicOffSprite;
-                isMusicEnabled = false;
-            }
-            else
-            {
-                MusicButton.GetComponent<Image>().sprite = musicOnSprite;
-                MusicButtonGameEndUI.GetComponent<Image>().sprite = musicOnSprite;
-                musicAudioSource.Play();
-                isMusicEnabled = true;
-            }
-            return;
-        }
-        if (isMusicEnabled)
-        {
-            isMusicEnabled = false;
-            musicButton.GetComponent<Animation>().Play("MusicOff");
-            StartCoroutine(SetMusicButtonSprite(false,musicButton));
-            musicAudioSource.Stop();
-            PlayerPrefs.SetInt("music", 0);
-        }
-        else
-        {
-            isMusicEnabled = true;
-            musicButton.GetComponent<Animation>().Play("MusicOn");
-            StartCoroutine(SetMusicButtonSprite(true, musicButton));
-            musicAudioSource.Play();
-            PlayerPrefs.SetInt("music", 1);
-        }
-    }
-    IEnumerator SetMusicButtonSprite(bool isMusicOn, Button musicButton)
-    {
-        for (int i=0;i<20;i++)
-        {
-            yield return null;
-        }
-        if (isMusicOn)
-        {
-            musicButton.GetComponent<Image>().sprite = musicOnSprite;
-            yield break;
-        }
-        musicButton.GetComponent<Image>().sprite = musicOffSprite;
+        // TODO Vibration
+        //Vibration.Cancel();
     }
 #if UNITY_EDITOR
     void LevelEditorDelayedStop()
@@ -984,8 +855,9 @@ public class GameManager : MonoBehaviour
     void OnApplicationPause(bool isPaused) // If the game is paused, Unity framework invokes this method automatically.
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
+        // TODO Vibration
         if(isPaused) 
-        Vibration.Cancel(); // Stops the vibration
+        //Vibration.Cancel(); // Stops the vibration
 #endif
     }
     public void ButtonOpenLink(string link)
@@ -1177,63 +1049,5 @@ public class GameManager : MonoBehaviour
     {
         public Button button;
         public string link;
-    }
-    public static class Vibration
-    {
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-    public static AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-    public static AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-    public static AndroidJavaObject vibrator = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator");
-#else
-        public static AndroidJavaClass unityPlayer;
-        public static AndroidJavaObject currentActivity;
-        public static AndroidJavaObject vibrator;
-#endif
-
-        public static void Vibrate()
-        {
-            if (isAndroid())
-                vibrator.Call("vibrate");
-            else
-                Handheld.Vibrate();
-        }
-
-
-        public static void Vibrate(long milliseconds)
-        {
-            if (isAndroid())
-                vibrator.Call("vibrate", milliseconds);
-            else
-                Handheld.Vibrate();
-        }
-
-        public static void Vibrate(long[] pattern, int repeat)
-        {
-            if (isAndroid())
-                vibrator.Call("vibrate", pattern, repeat);
-            else
-                Handheld.Vibrate();
-        }
-
-        public static bool HasVibrator()
-        {
-            return isAndroid();
-        }
-
-        public static void Cancel()
-        {
-            if (isAndroid())
-                vibrator.Call("cancel");
-        }
-
-        private static bool isAndroid()
-        {
-#if UNITY_ANDROID && !UNITY_EDITOR
-	return true;
-#else
-            return false;
-#endif
-        }
     }
 }
