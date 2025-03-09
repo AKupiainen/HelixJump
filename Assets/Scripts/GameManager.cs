@@ -68,8 +68,6 @@ public class GameManager : MonoBehaviour
     [Header("-------------------------------Second Chance Settings-------------------------------")]
     public bool isSecondChanceActive;
     public int secondChanceTimeCounterMax, secondChanceLimit;
-    [Header("-------------------------------Social Media Settings-------------------------------")]
-    public List<SocialMediaPair> socialMediaPairs;
     [Header("-------------------------------Live Auto Generator Settings-------------------------------")]
     public bool isLiveAutoGeneratorActive;
     public int autoGeneratorSeed;
@@ -116,20 +114,6 @@ public class GameManager : MonoBehaviour
     bool isMusicEnabled;
     void Start()
     {
-        Application.targetFrameRate = 60; // This line locks the FPS to 60. 
-        if (!PlayerPrefs.HasKey("total_score")) // Section 1 - Comment: If total_score and passed_levels keys are not exist generate and save with values 0 and 1 respectively.
-        {
-            PlayerPrefs.SetInt("total_score", 0);
-        }
-        else
-        {
-            gameEndUI.totalScoreValue.text = PlayerPrefs.GetInt("total_score").ToString();
-        }
-        if (!PlayerPrefs.HasKey("passed_levels"))
-        {
-            PlayerPrefs.SetInt("passed_levels", 1);
-        }
-        PlayerPrefs.Save();// End of  Section 1
         LoadLevel((SceneManager.sceneCount == 1) ? PlayerPrefs.GetInt("passed_levels") : -1); // When LevelCreator scene is opened, the scene count becomes 2, so if scene count is 1, that means the gamescene is opened and load the level, else LoadLevel(-1) => That means, the LevelCreatorScene is opened and don't load level normally.
         meteorRandomValue = Random.Range(0, MeteorGenerateTimeCounterRandomMax); // Pick a random value for meteorRandomValue, this is needed for starting of the time counter.
         audioSource = GetComponent<AudioSource>(); // Get audio source component of GameManager object, this is needed for playing sound effects.
@@ -1043,11 +1027,5 @@ public class GameManager : MonoBehaviour
     public struct BackgroundColorPair
     {
         public Gradient BackgroundColorTop, BackgroundColorBottom;
-    }
-    [System.Serializable]
-    public struct SocialMediaPair
-    {
-        public Button button;
-        public string link;
     }
 }
