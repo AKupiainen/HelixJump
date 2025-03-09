@@ -73,3 +73,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 .DS_Store
 Assets/.DS_Store
+.idea/.idea.HelixJump/.idea/encodings.xml
+.idea/.idea.HelixJump/.idea/indexLayout.xml
+.idea/.idea.HelixJump/.idea/vcs.xml
