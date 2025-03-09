@@ -1,10 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Globalization;
+using Random = UnityEngine.Random;
+
 public class GameManager : MonoBehaviour
 {
     //Start of Variables which are shown in Inspector
@@ -846,63 +849,76 @@ public class GameManager : MonoBehaviour
         //Vibration.Cancel(); // Stops the vibration
 #endif
     }
-    public void ButtonOpenLink(string link)
+
+    private void TriggerLiveAutoGenerator()
     {
-        Application.OpenURL(link);
-    }
-    public void CreditOpened()
-    {
-        creditOpenedBlocker = true;
-    }
-    public void CreditClosed()
-    {
-        creditOpenedBlocker = false;
-    }
-    void TriggerLiveAutoGenerator() // Triggers live auto generator
-    {
-        Random.State backupRandom = Random.state; // Backups the random state to set random state in end of the block.
-        Random.InitState(autoGeneratorSeed+currentLevel); // Sets the seed of the random method, autoGeneratorSeed+currentLevel will be same for the all players, so random generated levels will be same for the all players.
-        Random.InitState(Random.Range(-currentLevel * 12345, currentLevel * 12345)); // Sets again the seed, this will be set to more complicated seed.
-        var stepCount = (int)Random.Range(totalStepMinCurve.Evaluate((float)currentLevel / (float)maxHardnessLevelNumber) * 100, totalStepMaxCurve.Evaluate((float)currentLevel / (float)maxHardnessLevelNumber) * 100 + 1); // Picks step count between two curves randomly.
-        var levelContent = ""; // Empty level content as string.
-        var colorpairs = AutoGeneratorColorPairs;
-        var colorPair = colorpairs[Random.Range(0, colorpairs.Count)]; // Picks the color pair randomly.
-        var patternIndex = Random.Range(0, platformSamples.Length); // Picks the step pattern randomly.
-        var pattern = platformSamples[patternIndex]; // Gets a reference of selected step pattern.
-        var snapAngle = 360f / (float)pattern.count; // Sets the snap angle according to step platform count.
-        var lastAngle = Random.Range(0f, 360f); // Picks lastAngle randomly between 0-360.
-        var stepIsObstacleArray = new int[pattern.count]; // Creates an integer array for storing "is platform obstacle or not". 0 is normal platform, 1 is obstacle platform.
-        var speed = (Random.Range(0f, autoGeneratorHardnessCurve.Evaluate(((float)currentLevel) / (maxHardnessLevelNumber + 1))) + 1.5f) * (Random.Range(0f, 1f) < 0.5f ? -1f : 1f); // Sets initial speed randomly.
-        var scaleCurve = AutoGenerateScales[Random.Range(0, AutoGenerateScales.Count)]; // Picks scale curve from array of curves randomly.
-        bool isAnyPlatformNormal = false; // Prevents all steps obstacle. With this way, one of the steps must normal platform at least. This is needed to make game playable.
-        for (int j = 0; j < pattern.count; j++) // Sets platforms are obstacle or normal randomly.
+        Random.State backupRandom = Random.state;
+        Random.InitState(autoGeneratorSeed + currentLevel);
+        Random.InitState(Random.Range(-currentLevel * 12345, currentLevel * 12345));
+
+        int stepCount = (int)Random.Range(
+            totalStepMinCurve.Evaluate((float)currentLevel / maxHardnessLevelNumber) * 100,
+            totalStepMaxCurve.Evaluate((float)currentLevel / maxHardnessLevelNumber) * 100 + 1);
+
+        string levelContent = String.Empty;
+        List<CreatorScript.AutoGeneratorColorPair> colorPairs = AutoGeneratorColorPairs;
+        CreatorScript.AutoGeneratorColorPair colorPair = colorPairs[Random.Range(0, colorPairs.Count)];
+        int patternIndex = Random.Range(0, platformSamples.Length);
+        Step pattern = platformSamples[patternIndex];
+        float snapAngle = 360f / (float)pattern.count;
+        float lastAngle = Random.Range(0f, 360f);
+        int[] stepIsObstacleArray = new int[pattern.count];
+        float speed = (Random.Range(0f,
+                           autoGeneratorHardnessCurve.Evaluate((float)currentLevel / (maxHardnessLevelNumber + 1))) +
+                       1.5f) *
+                      (Random.Range(0f, 1f) < 0.5f ? -1f : 1f);
+        
+        AnimationCurve scaleCurve = AutoGenerateScales[Random.Range(0, AutoGenerateScales.Count)];
+
+        bool isAnyPlatformNormal = false;
+        
+        for (int j = 0; j < pattern.count; j++)
         {
             stepIsObstacleArray[j] = Random.Range(0, 2);
-            if (stepIsObstacleArray[j] == 0) isAnyPlatformNormal = true; // If one of them is normal platform, disable the next if block.
-        }
-        if (!isAnyPlatformNormal) // If all platforms are obstacle
-        {
-            stepIsObstacleArray[Random.Range(0, pattern.count)] = 0; // Set one of the obstacle to normal platform randomly.
-        }
-        for (int stepIndex = 0; stepIndex < stepCount; stepIndex++) // This for loop does this for each step.
-        {
-            var stepContent = ""; // Empty step content as string.
-            bool isTrapped = isTrapOccured(currentLevel); // Call isTrapOccurred and store it to isTrapped variable.
-            var angleDifference = speed * speedToAngle; // Sets angle difference.
-            if (isTrapped) // If it is trapped.
+            
+            if (stepIsObstacleArray[j] == 0)
             {
-                isAnyPlatformNormal = false; // Prevents all steps obstacle. With this way, one of the steps must normal platform at least. This is needed to make game playable.
-                for (int j = 0; j < pattern.count; j++) // Sets platforms are obstacle or normal randomly again because it is trapped.
+                isAnyPlatformNormal = true;
+            }
+        }
+
+        if (!isAnyPlatformNormal)
+        {
+            stepIsObstacleArray[Random.Range(0, pattern.count)] = 0;
+        }
+
+        for (int stepIndex = 0; stepIndex < stepCount; stepIndex++)
+        {
+            bool isTrapped = IsTrapOccurred(currentLevel);
+            float angleDifference = speed * speedToAngle;
+
+            if (isTrapped)
+            {
+                isAnyPlatformNormal = false;
+                
+                for (int j = 0; j < pattern.count; j++)
                 {
-                    stepIsObstacleArray[j] = Random.Range(0, 2); 
-                    if (stepIsObstacleArray[j] == 0) isAnyPlatformNormal = true; // If one of them is normal platform, disable the next if block.
+                    stepIsObstacleArray[j] = Random.Range(0, 2);
+                    
+                    if (stepIsObstacleArray[j] == 0)
+                    {
+                        isAnyPlatformNormal = true;
+                    }
                 }
-                if (!isAnyPlatformNormal) // If all platforms are obstacle
+
+                if (!isAnyPlatformNormal)
                 {
-                    stepIsObstacleArray[Random.Range(0, pattern.count)] = 0; // Set one of the obstacle to normal platform randomly.
+                    stepIsObstacleArray[Random.Range(0, pattern.count)] = 0;
                 }
-                angleDifference += (Random.Range(0f, 1f) < 0.5f ? -1f : 1f) * snapAngle * (float)Random.Range(1, pattern.count); // Sets angle difference randomly based on the snap angle. The snap angle is needed, because if it is not used, the steps rotations may be looking weird.
-                if (angleDifference >= 360) // This if - else if block sets the angle difference value between 0-360
+
+                angleDifference += (Random.Range(0f, 1f) < 0.5f ? -1f : 1f) * snapAngle *
+                                   Random.Range(1, pattern.count);
+                if (angleDifference >= 360)
                 {
                     angleDifference = 360 - angleDifference;
                 }
@@ -911,75 +927,108 @@ public class GameManager : MonoBehaviour
                     angleDifference += 360;
                 }
             }
-            var normalPlatformColor = colorPair.normalPlatformGradientColor.Evaluate((float)stepIndex / (float)stepCount); // Gets normal platform color from the graident by evaluating.
-            var obstaclePlatformColor = colorPair.obstaclePlatformGradientColor.Evaluate((float)stepIndex / (float)stepCount); // Gets obstacle platform color from the graident by evaluating.
 
-            var n_c_r = (int)(normalPlatformColor.r * 255f); // This part converts color components from range of 0-1 to 0-255 as integer.
-            var n_c_g = (int)(normalPlatformColor.g * 255f);
-            var n_c_b = (int)(normalPlatformColor.b * 255f);
+            Color normalPlatformColor =
+                colorPair.normalPlatformGradientColor.Evaluate(stepIndex / (float)stepCount);
+            Color obstaclePlatformColor =
+                colorPair.obstaclePlatformGradientColor.Evaluate(stepIndex / (float)stepCount);
 
-            var o_c_r = (int)(obstaclePlatformColor.r * 255f);
-            var o_c_g = (int)(obstaclePlatformColor.g * 255f);
-            var o_c_b = (int)(obstaclePlatformColor.b * 255f); // End of part
+            int normalRed = (int)(normalPlatformColor.r * 255f);
+            int normalGreen = (int)(normalPlatformColor.g * 255f);
+            int normalBlue = (int)(normalPlatformColor.b * 255f);
 
-            var scaleValue = scaleCurve.Evaluate((float)stepIndex / (float)stepCount); // Gets scale value of the step from selected scale curve.
-            stepContent = speed.ToString(CultureInfo.InvariantCulture) + "/" + (stepIndex == 0 ? lastAngle : angleDifference).ToString(CultureInfo.InvariantCulture) + "/" + patternIndex.ToString(CultureInfo.InvariantCulture) + "/" + n_c_r.ToString(CultureInfo.InvariantCulture) + "_" + n_c_g.ToString(CultureInfo.InvariantCulture) + "_" + n_c_b.ToString(CultureInfo.InvariantCulture) + "/" + o_c_r.ToString(CultureInfo.InvariantCulture) + "_" + o_c_g.ToString(CultureInfo.InvariantCulture) + "_" + o_c_b.ToString(CultureInfo.InvariantCulture) + "/" + scaleValue.ToString(CultureInfo.InvariantCulture) + "/" + scaleValue.ToString(CultureInfo.InvariantCulture) + "/"; // Sets step content with obtained values.
-            for (int p_index = 0; p_index < pattern.count; p_index++) // Sets is obstacle or not array. This is the integer sequence of the step content at the end. (for example: 010011)
+            int obstacleRed = (int)(obstaclePlatformColor.r * 255f);
+            int obstacleGreen = (int)(obstaclePlatformColor.g * 255f);
+            int obstacleBlue = (int)(obstaclePlatformColor.b * 255f);
+
+
+            float scaleValue = scaleCurve.Evaluate((float)stepIndex / stepCount);
+            string stepContent = speed.ToString(CultureInfo.InvariantCulture) + "/" +
+                                 (stepIndex == 0 ? lastAngle : angleDifference).ToString(CultureInfo.InvariantCulture) + "/" +
+                                 patternIndex.ToString(CultureInfo.InvariantCulture) + "/" +
+                                 normalRed.ToString(CultureInfo.InvariantCulture) + "_" +
+                                 normalGreen.ToString(CultureInfo.InvariantCulture) + "_" +
+                                 normalBlue.ToString(CultureInfo.InvariantCulture) + "/" +
+                                 obstacleRed.ToString(CultureInfo.InvariantCulture) + "_" +
+                                 obstacleGreen.ToString(CultureInfo.InvariantCulture) + "_" +
+                                 obstacleBlue.ToString(CultureInfo.InvariantCulture) + "/" +
+                                 scaleValue.ToString(CultureInfo.InvariantCulture) + "/" +
+                                 scaleValue.ToString(CultureInfo.InvariantCulture) + "/";
+
+            for (int index = 0; index < pattern.count; index++)
             {
-                stepContent += stepIsObstacleArray[p_index].ToString(CultureInfo.InvariantCulture);
+                stepContent += stepIsObstacleArray[index].ToString(CultureInfo.InvariantCulture);
             }
-            stepContent += "/"; // Add slash character between two steps.
-            if (stepIndex != stepCount - 1) // If this step is not the last step, add enter character (\n).
+
+            stepContent += "/";
+            
+            if (stepIndex != stepCount - 1)
             {
                 stepContent += "\n";
             }
-            if (isTrapOccuredForSpeed(currentLevel)) // If speed trap is occurred.
+
+            if (IsTrapOccurredForSpeed(currentLevel))
             {
-                speed = (Random.Range(0f, autoGeneratorHardnessCurve.Evaluate(((float)currentLevel) / (maxHardnessLevelNumber + 1))) + 1.5f) * (Random.Range(0f, 1f) < 0.5f ? -1f : 1f); // Set speed randomly if it is speed trapped.
+                speed = (Random.Range(0f,
+                            autoGeneratorHardnessCurve.Evaluate(((float)currentLevel) / (maxHardnessLevelNumber + 1))) +
+                        1.5f) *
+                        (Random.Range(0f, 1f) < 0.5f ? -1f : 1f);
             }
-            levelContent += stepContent; // Write this step to level content.
+
+            levelContent += stepContent;
         }
 
-        Random.state = backupRandom; // Sets the random state to old one.
+        Random.state = backupRandom;
 
-        var stepsByOrderAsStrings = levelContent.Split('\n'); // Return line contents as array of level content. Each line means one step.
-        // Level file content structure => speed / ang / index  /      color      /     color2      / scaleX / scaleZ /   00000
-        //                                 float  float  int        int_int_int       int_int_int     float    float   int sequence
-        for (int j = 0; j < stepsByOrderAsStrings.Length; j++) // For loop does this for each step.
+        string[] stepsByOrderAsStrings = levelContent.Split('\n');
+
+        for (int j = 0; j < stepsByOrderAsStrings.Length; j++)
         {
-            var stepsStrings = stepsByOrderAsStrings[j].Split('/'); // Gets step contents as string array (speed, ang, index, etc.)
-            float stepRotationSpeed = float.Parse(stepsStrings[0], CultureInfo.InvariantCulture); // Parse string to float. 0 index is speed.
-            float stepAngle = float.Parse(stepsStrings[1], CultureInfo.InvariantCulture); // Parse string to float. 1 index is offset angle relative to upper step.
-            int stepId = int.Parse(stepsStrings[2]); // Parse string to int. 2 index is step index.
-            var stepColorStrings = stepsStrings[3].Split('_'); // Split string to string array by '_' character. This returns color by r,g and b as string array.
-            Color stepColor = new Color(float.Parse(stepColorStrings[0], CultureInfo.InvariantCulture) / 255f, float.Parse(stepColorStrings[1], CultureInfo.InvariantCulture) / 255f, float.Parse(stepColorStrings[2], CultureInfo.InvariantCulture) / 255f); // Parsing 0 1 2 indexes to float. This returns each color component in 0-255 range, then divides it with 255 to make it in range 0f-1f.
-            var obstacleColorStrings = stepsStrings[4].Split('_'); // Split string to string array by '_' character. This returns color by r,g and b as string array.
-            Color obstacleColor = new Color(float.Parse(obstacleColorStrings[0], CultureInfo.InvariantCulture) / 255f, float.Parse(obstacleColorStrings[1], CultureInfo.InvariantCulture) / 255f, float.Parse(obstacleColorStrings[2], CultureInfo.InvariantCulture) / 255f); // Parsing 0 1 2 indexes to float. This returns each color component in 0-255 range, then divides it with 255 to make it in range 0f-1f.
-            float scaleX = float.Parse(stepsStrings[5], CultureInfo.InvariantCulture); // Parse string to float. 5 index is scaleX of the step.
-            float scaleZ = float.Parse(stepsStrings[6], CultureInfo.InvariantCulture); // Parse string to float. 6 index is scaleZ of the step.
-            bool[] isObstacleArray = new bool[stepsStrings[7].Length]; // Create a bool array that's length is equal to int sequence (like 00000 => length is 5) 0 means => normal platform, 1 means => obstacle platform.
-            for (int i = 0; i < stepsStrings[7].Length; i++) // Section 9 - Comment: If char is '1' of int sequence, it is an obstacle platform and isObstacleArray[i] value becomes true. For loop does this for each char of the int sequence.
+            string[] stepsStrings = stepsByOrderAsStrings[j].Split('/');
+            float stepRotationSpeed = float.Parse(stepsStrings[0], CultureInfo.InvariantCulture);
+            float stepAngle = float.Parse(stepsStrings[1], CultureInfo.InvariantCulture);
+            int stepId = int.Parse(stepsStrings[2]);
+
+            string[] stepColorStrings = stepsStrings[3].Split('_');
+            Color stepColor = new Color(float.Parse(stepColorStrings[0], CultureInfo.InvariantCulture) / 255f,
+                float.Parse(stepColorStrings[1], CultureInfo.InvariantCulture) / 255f,
+                float.Parse(stepColorStrings[2], CultureInfo.InvariantCulture) / 255f);
+
+            string[] obstacleColorStrings = stepsStrings[4].Split('_');
+            Color obstacleColor = new Color(float.Parse(obstacleColorStrings[0], CultureInfo.InvariantCulture) / 255f,
+                float.Parse(obstacleColorStrings[1], CultureInfo.InvariantCulture) / 255f,
+                float.Parse(obstacleColorStrings[2], CultureInfo.InvariantCulture) / 255f);
+
+            float scaleX = float.Parse(stepsStrings[5], CultureInfo.InvariantCulture);
+            float scaleZ = float.Parse(stepsStrings[6], CultureInfo.InvariantCulture);
+            bool[] isObstacleArray = new bool[stepsStrings[7].Length];
+
+            for (int i = 0; i < stepsStrings[7].Length; i++)
             {
                 isObstacleArray[i] = stepsStrings[7][i] == '1';
-            }// End of Section 9
-            levelEnding += platformSamples[stepId].height; // Accumulate level ending to calculate level height. This is needed for placing ending platform.
-            stepGenerationQueue.Enqueue(new StepGeneration(stepRotationSpeed, stepId, stepAngle, stepColor, obstacleColor, scaleX, scaleZ, isObstacleArray)); // Add this step to stepGenerationQueue with using datas. stepGenerationQueue is used for generating steps on time. If all steps are generated immediately, the game will be slow on mobile phones, even on computers.
+            }
+
+            levelEnding += platformSamples[stepId].height;
+            stepGenerationQueue.Enqueue(new StepGeneration(stepRotationSpeed, stepId, stepAngle, stepColor,
+                obstacleColor, scaleX, scaleZ, isObstacleArray));
         }
-        levelIndicatorSource.text = currentLevel.ToString(); // Set levelIndicatorSource text to level number. levelIndicatorSource is left side of the progressing indicator on the top of screen. 
-        levelIndicatorTarget.text = (currentLevel + 1).ToString(); // Set levelIndicatorTarget text to level number+1. If there is no level with level number+1, set text to "END".
-        GenerateStepsAsBulk(stepGenerationCountOnInitializing); // Generate steps as bulk
+
+        levelIndicatorSource.text = currentLevel.ToString();
+        levelIndicatorTarget.text = (currentLevel + 1).ToString();
+        GenerateStepsAsBulk(stepGenerationCountOnInitializing);
     }
-    bool isTrapOccured(float levelIndex)
+        
+    private bool IsTrapOccurred(float levelIndex, float occurrenceDecreaser)
     {
-        var y_value = autoGeneratorHardnessCurve.Evaluate((levelIndex) / (maxHardnessLevelNumber + 1));
-        return Random.Range(0f, 1f + trapOccurenceDecreaser) < y_value;
+        float hardness = autoGeneratorHardnessCurve.Evaluate(levelIndex / (maxHardnessLevelNumber + 1));
+        return Random.Range(0f, 1f + occurrenceDecreaser) < hardness;
     }
-    bool isTrapOccuredForSpeed(float levelIndex)
-    {
-        var y_value = autoGeneratorHardnessCurve.Evaluate((levelIndex) / (maxHardnessLevelNumber + 1));
-        return Random.Range(0f, 1f + speedTrapOccurenceDecreaser) < y_value;
-    }
-    [System.Serializable]
+
+    private bool IsTrapOccurred(float levelIndex) => IsTrapOccurred(levelIndex, trapOccurenceDecreaser);
+    private bool IsTrapOccurredForSpeed(float levelIndex) => IsTrapOccurred(levelIndex, speedTrapOccurenceDecreaser);
+
+    
+    [Serializable]
     public class Step
     {
         public int count;
