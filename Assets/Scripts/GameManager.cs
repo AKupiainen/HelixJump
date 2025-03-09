@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Globalization;
+using Volpi.Entertaiment.SDK.Utilities;
 using Volpi.Entertainment.SDK.Utilities;
 using Random = UnityEngine.Random;
 
@@ -780,77 +781,97 @@ public class GameManager : MonoBehaviour
         toleratedStep = null;
         isToleranceEffectActivated = false;
     }
-    IEnumerator CancelVibration(float time)
+    private IEnumerator CancelVibration(float time)
     {
         yield return new WaitForSeconds(time);
-        // TODO Vibration
-        //Vibration.Cancel();
+        Vibration.CancelAndroid();
     }
+    
 #if UNITY_EDITOR
-    void LevelEditorDelayedStop()
-    { // This method is used when the game is playing in Editor.
-        UnityEditor.EditorApplication.isPlaying = false; // After one second (one second comes from GameEnd method Invoke method delay), the playing mode will be stopped in editor.
+    private void LevelEditorDelayedStop()
+    { 
+        UnityEditor.EditorApplication.isPlaying = false;
     }
 #endif
+    
     public void RestartGame()
     {
         if (SceneManager.sceneCount != 1 || creditOpenedBlocker)
         {
-            return; // If the game is playing in the editor, this method is not needed.
+            return;
         }
 
-        bool isSecondChanceWanted = false;
-        if (secondChanceCoroutine != null) // If this condition is true, the player wanted second chance
+        bool isSecondChanceWanted = secondChanceCoroutine != null && generatedLevelSteps.Count > 1;
+        
+        if (secondChanceCoroutine != null)
         {
-            if (generatedLevelSteps.Count > 1) isSecondChanceWanted = true; // If there is step else ending platform and the player wanted second chance, the second chance can be given.
-            StopCoroutine(secondChanceCoroutine); // Stops second chance counter.
-            secondChanceCoroutine = null; // Indicates second chance counter is not working.
+            StopCoroutine(secondChanceCoroutine);
+            secondChanceCoroutine = null;
         }
-        gameEndUI.GameEndUIParent.gameObject.SetActive(false); // Deactive game end UI, because game will restart.
-        gameEndUI.SecondChanceCounterText.gameObject.SetActive(false); // Section 11 - Comment: Arranges game end UI after waiting for second chance. This is needed because if the player wants second chance and starts game again until ending second chance lives, then when the game ends, the second chance UI is shown. This codes fix this.
+
+        gameEndUI.GameEndUIParent.gameObject.SetActive(false);
+        gameEndUI.SecondChanceCounterText.gameObject.SetActive(false);
         gameEndUI.SecondChanceInfoText.gameObject.SetActive(false);
         gameEndUI.SecondChanceWatchAdText.gameObject.SetActive(false);
         gameEndUI.TotalScoreValue.gameObject.SetActive(true);
         gameEndUI.TotalScoreText.gameObject.SetActive(true);
         gameEndUI.CurrentScoreText.gameObject.SetActive(true);
-        gameEndUI.CurrentScoreValue.gameObject.SetActive(true); // End of Section 11
+        gameEndUI.CurrentScoreValue.gameObject.SetActive(true);
 
-        if (isSecondChanceWanted) // If second chance has been given
+        if (isSecondChanceWanted)
         {
-#if UNITY_ADS
-            UnityEngine.Advertisements.Advertisement.Show(); // Show an AD.
-#endif
+            AdMobManager.Instance.ShowInterstitialAd();
+            
             if (CrackedPlayer != null)
             {
-                Destroy(CrackedPlayer.gameObject); // Destroy cracked player to start game again.
+                Destroy(CrackedPlayer.gameObject);
             }
-
-            CrackedPlayer = null; // Indicates there is no cracked player.
-            Player = Instantiate(PlayerSample).transform; // There is no player to start game again, so this line instantiates player again.
-            isGameEnded = false; // Marks the game is not ended.
-            endingType = EndingTypes.NONE; // This line is to not do under this line and also resets game ending indicator.
+            
+            CrackedPlayer = null;
+            Player = Instantiate(PlayerSample).transform;
+            isGameEnded = false;
+            endingType = EndingTypes.NONE;
         }
 
         switch (endingType)
         {
-            case EndingTypes.COMPLETE: // On complete level action.
-                gameEndUI.TouchToContinue.gameObject.SetActive(false); // Deactivates touchToContinue text.
-                gameEndUI.PassedInfoText.gameObject.SetActive(false); // Deactivates passedInfoText text.
-                if (!isSecondChanceWanted) LoadLevel(currentLevel + 1); // Loads next level.
+            case EndingTypes.COMPLETE:
+            {
+                gameEndUI.TouchToContinue.gameObject.SetActive(false);
+                gameEndUI.PassedInfoText.gameObject.SetActive(false);
+                
+                if (!isSecondChanceWanted)
+                {
+                    LoadLevel(currentLevel + 1);
+                }
                 break;
-            case EndingTypes.PASSEDALLLEVELS: // On passed all levels action.
-                gameEndUI.TouchToRestartText.gameObject.SetActive(false); // Deactivates touchToRestartText text.
-                gameEndUI.PassAllLevelsInfoText.gameObject.SetActive(false); // Deactivates passAllLevelsInfoText text.
-                if (!isSecondChanceWanted) LoadLevel(currentLevel); // Loads same level.
+            }
+            case EndingTypes.PASSEDALLLEVELS:
+            {
+                gameEndUI.TouchToRestartText.gameObject.SetActive(false);
+                gameEndUI.PassAllLevelsInfoText.gameObject.SetActive(false);
+                
+                if (!isSecondChanceWanted)
+                {
+                    LoadLevel(currentLevel);
+                }
                 break;
-            case EndingTypes.GAMEOVER: // On gameover level action.
-                gameEndUI.TouchToRestartText.gameObject.SetActive(false); // Deactivates touchToRestartText text.
-                gameEndUI.GameOverInfoText.gameObject.SetActive(false); // Deactivates gameOverInfoText text.
-                if (!isSecondChanceWanted) LoadLevel(currentLevel); // Loads same level.
+            }
+            case EndingTypes.GAMEOVER:
+            {
+                gameEndUI.TouchToRestartText.gameObject.SetActive(false);
+                gameEndUI.GameOverInfoText.gameObject.SetActive(false);
+                
+                if (!isSecondChanceWanted)
+                {
+                    LoadLevel(currentLevel);
+                }
                 break;
+            }
         }
     }
-    void OnApplicationPause(bool isPaused) // If the game is paused, Unity framework invokes this method automatically.
+    
+    void OnApplicationPause(bool isPaused)
     {
         if (isPaused)
         {
@@ -1033,5 +1054,4 @@ public class GameManager : MonoBehaviour
 
     private bool IsTrapOccurred(float levelIndex) => IsTrapOccurred(levelIndex, trapOccurenceDecreaser);
     private bool IsTrapOccurredForSpeed(float levelIndex) => IsTrapOccurred(levelIndex, speedTrapOccurenceDecreaser);
-    
 }
