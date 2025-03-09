@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Globalization;
+using Volpi.Entertainment.SDK.Utilities;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
@@ -178,7 +179,7 @@ public class GameManager : MonoBehaviour
                 var step = GeneratedObjects.GetChild(i);
                 var stepIndexes = step.name.Split('_');
                 generatedLevelSteps.Add(new StepReferenceToGame(float.Parse(stepIndexes[1], CultureInfo.InvariantCulture), int.Parse(stepIndexes[2]), step));
-                levelEnding += platformSamples[int.Parse(stepIndexes[2])].height; // Accumulate the levelEnding by summing step heights.
+                levelEnding += platformSamples[int.Parse(stepIndexes[2])].Height; // Accumulate the levelEnding by summing step heights.
 
                 if (i==0)
                 {
@@ -231,7 +232,7 @@ public class GameManager : MonoBehaviour
             {
                 isObstacleArray[i] = stepsStrings[7][i] == '1';
             }// End of Section 9
-            levelEnding += platformSamples[stepId].height; // Accumulate level ending to calculate level height. This is needed for placing ending platform.
+            levelEnding += platformSamples[stepId].Height; // Accumulate level ending to calculate level height. This is needed for placing ending platform.
             stepGenerationQueue.Enqueue(new StepGeneration(stepRotationSpeed, stepId, stepAngle, stepColor, obstacleColor, scaleX, scaleZ, isObstacleArray)); // Add this step to stepGenerationQueue with using datas. stepGenerationQueue is used for generating steps on time. If all steps are generated immediately, the game will be slow on mobile phones, even on computers.
         }
         levelIndicatorSource.text = levelNumber.ToString(); // Set levelIndicatorSource text to level number. levelIndicatorSource is left side of the progressing indicator on the top of screen. 
@@ -253,9 +254,9 @@ public class GameManager : MonoBehaviour
             Step step = platformSamples[stepInfo.StepIndex]; // This is used for getting obstaclePlatformSample, normalPlatformSample, count and height informations.
             for (int j = 0; j < stepInfo.IsObstacleArray.Length; j++) // For loop does this for each platform
             {
-                var generatedPlatform = Instantiate<GameObject>(stepInfo.IsObstacleArray[j] ? step.obstaclePlatformSample : step.normalPlatformSample, generatedStep).transform; // Generate platform with getting the information from isObstacleArray[j].
+                var generatedPlatform = Instantiate<GameObject>(stepInfo.IsObstacleArray[j] ? step.ObstaclePlatformSample : step.NormalPlatformSample, generatedStep).transform; // Generate platform with getting the information from isObstacleArray[j].
                 generatedPlatform.name = "Platform_" + (stepInfo.IsObstacleArray[j] ? "1" : "0"); // Name the platform. I added _0 or _1 information end of the name. _0 means => normal platform, _1 means => obstacle platform. _ character is used for splitting two pieces easily with Split method of string.
-                generatedPlatform.localEulerAngles = new Vector3(0, (360f / (float)step.count) * j, 0); // Set rotate of the platform. Rotate difference amount is 360/count.
+                generatedPlatform.localEulerAngles = new Vector3(0, (360f / (float)step.Count) * j, 0); // Set rotate of the platform. Rotate difference amount is 360/count.
 
                 if (i == 0)
                 {
@@ -269,7 +270,7 @@ public class GameManager : MonoBehaviour
 
                 if (generatedPlatform.GetChild(0).GetComponent<Renderer>().material.shader.name == "Custom/PlatformShader") generatedPlatform.GetChild(0).GetComponent<Renderer>().material.color = stepInfo.IsObstacleArray[j] ? stepInfo.ObstacleColor : stepInfo.StepColor; // If platform sample has Custom/PlatformShader, set its color to stepInfo.obstacleColor or stepInfo.stepColor. With this way, we can use textured platforms with other materials.
             }
-            stepYOffset -= step.height; // Iterate the offset.
+            stepYOffset -= step.Height; // Iterate the offset.
             generatedStep.localScale = new Vector3(stepInfo.ScaleX, 1, stepInfo.ScaleZ); // Set step size with information of stepInfo.
             if (stepGenerationQueue.Count == 0) break; // If there is no remaining steps in stepGenerationQueue, break loop. If count is greater than stepGenerationQueue count, this line happens.
         }
@@ -280,16 +281,16 @@ public class GameManager : MonoBehaviour
         StepGeneration stepInfo = stepGenerationQueue.Dequeue(); // Get next step from stepGenerationQueue. I used queue for storing steps, because steps can be only adding with 0 index and remove with last index.
         var generatedStep = new GameObject("Step").transform; // Generate the step.
         generatedStep.SetParent(GeneratedObjects); // Set parent of new step as GeneratedObjects. With this way all steps will under the GeneratedObjects gameobject.
-        generatedStep.position = new Vector3(0, generatedLevelSteps[generatedLevelSteps.Count - 1].Step.position.y - platformSamples[stepInfo.StepIndex].height, 0); // Set step position. The position of this step is relative to previous step.
+        generatedStep.position = new Vector3(0, generatedLevelSteps[generatedLevelSteps.Count - 1].Step.position.y - platformSamples[stepInfo.StepIndex].Height, 0); // Set step position. The position of this step is relative to previous step.
         float lastStepAngle = generatedLevelSteps[generatedLevelSteps.Count - 1].Step.eulerAngles.y; // Previous step rotation angle. This will be used for calculating relative rotation angle.
         generatedStep.eulerAngles = new Vector3(0, lastStepAngle + stepInfo.StepAngle, 0); // Set rotation of the step by calculating relative rotate angle.
         generatedLevelSteps.Add(new StepReferenceToGame(stepInfo.RotationSpeed, stepInfo.StepIndex, generatedStep)); // Add this step to generatedLevelSteps. generatedLevelSteps is used for rotating and deleting steps with StepUpdate method.
         for (int j = 0; j < stepInfo.IsObstacleArray.Length; j++) // For loop does this for each platform
         {
             Step step = platformSamples[stepInfo.StepIndex]; // This is used for getting obstaclePlatformSample, normalPlatformSample, count informations.
-            var generatedPlatform = Instantiate<GameObject>(stepInfo.IsObstacleArray[j] ? step.obstaclePlatformSample : step.normalPlatformSample, generatedStep).transform; // Generate platform with getting the information from isObstacleArray[j].
+            var generatedPlatform = Instantiate<GameObject>(stepInfo.IsObstacleArray[j] ? step.ObstaclePlatformSample : step.NormalPlatformSample, generatedStep).transform; // Generate platform with getting the information from isObstacleArray[j].
             generatedPlatform.name = "Platform_" + (stepInfo.IsObstacleArray[j] ? "1" : "0"); // Name the platform. I added _0 or _1 information end of the name. _0 means => normal platform, _1 means => obstacle platform. _ character is used for splitting two pieces easily with Split method of string.
-            generatedPlatform.localEulerAngles = new Vector3(0, (360f / (float)step.count) * j, 0); // Set rotate of the platform. Rotate difference amount is 360/count.
+            generatedPlatform.localEulerAngles = new Vector3(0, (360f / (float)step.Count) * j, 0); // Set rotate of the platform. Rotate difference amount is 360/count.
             if (generatedPlatform.GetChild(0).GetComponent<Renderer>().material.shader.name == "Custom/PlatformShader") generatedPlatform.GetChild(0).GetComponent<Renderer>().material.color = stepInfo.IsObstacleArray[j] ? stepInfo.ObstacleColor : stepInfo.StepColor; // If platform sample has Custom/PlatformShader, set its color to stepInfo.obstacleColor or stepInfo.stepColor. With this way, we can use textured platforms with other materials.
         }
         generatedStep.localScale = new Vector3(stepInfo.ScaleX, 1, stepInfo.ScaleZ); // Set step size with information of stepInfo.
@@ -629,19 +630,19 @@ public class GameManager : MonoBehaviour
         }
 #endif
         gameEndUI.GameEndUIParent.gameObject.SetActive(true); // Activates game end UI.
-        gameEndUI.passedInfoText.gameObject.SetActive(false); // This line fixes second chance bug.
-        gameEndUI.passAllLevelsInfoText.gameObject.SetActive(false); // This line fixes second chance bug.
-        gameEndUI.gameOverInfoText.gameObject.SetActive(false); // This line fixes second chance bug.
+        gameEndUI.PassedInfoText.gameObject.SetActive(false); // This line fixes second chance bug.
+        gameEndUI.PassAllLevelsInfoText.gameObject.SetActive(false); // This line fixes second chance bug.
+        gameEndUI.GameOverInfoText.gameObject.SetActive(false); // This line fixes second chance bug.
         breakBonus.fillAmount = 0; // Set breakBonus filling amount to 0, this is needed for when game ended, the break bonus indicator is not shown on background.
         breakBonusWarning.SetActive(false); // Disable warning indicator.
-        gameEndUI.currentScoreValue.text = scoreValueText.text; // Update current score text on game end UI.
-        int newScoreIfpassed = (int)scoreValue + int.Parse(gameEndUI.totalScoreValue.text); // If the level has been passed, the new score is needed to be calculated.
+        gameEndUI.CurrentScoreValue.text = scoreValueText.text; // Update current score text on game end UI.
+        int newScoreIfpassed = (int)scoreValue + int.Parse(gameEndUI.TotalScoreValue.text); // If the level has been passed, the new score is needed to be calculated.
         switch (endingType)
         {
             case EndingTypes.COMPLETE: // On complete level action.
-                gameEndUI.touchToContinue.gameObject.SetActive(true); // Activates touchToContinue text.
-                gameEndUI.passedInfoText.gameObject.SetActive(true); // Activates passedInfotext text.
-                gameEndUI.totalScoreValue.text = newScoreIfpassed.ToString(); // Updates totalScoreValue text with new total score.
+                gameEndUI.TouchToContinue.gameObject.SetActive(true); // Activates touchToContinue text.
+                gameEndUI.PassedInfoText.gameObject.SetActive(true); // Activates passedInfotext text.
+                gameEndUI.TotalScoreValue.text = newScoreIfpassed.ToString(); // Updates totalScoreValue text with new total score.
                 if (SceneManager.sceneCount == 1)
                 {
                     PlayerPrefs.SetInt("passed_levels", currentLevel + 1); // Stores new passed levels number to "passed_levels" key.
@@ -650,9 +651,9 @@ public class GameManager : MonoBehaviour
                 }
                 break;
             case EndingTypes.PASSEDALLLEVELS: // On passed all levels action.
-                gameEndUI.touchToRestartText.gameObject.SetActive(true); // Activates touchToRestartText text.
-                gameEndUI.passAllLevelsInfoText.gameObject.SetActive(true); // Activates passAllLevelsInfoText text.
-                gameEndUI.totalScoreValue.text = newScoreIfpassed.ToString(); // Updates totalScoreValue text with new total score.
+                gameEndUI.TouchToRestartText.gameObject.SetActive(true); // Activates touchToRestartText text.
+                gameEndUI.PassAllLevelsInfoText.gameObject.SetActive(true); // Activates passAllLevelsInfoText text.
+                gameEndUI.TotalScoreValue.text = newScoreIfpassed.ToString(); // Updates totalScoreValue text with new total score.
                 if (SceneManager.sceneCount == 1)
                 {
                     PlayerPrefs.SetInt("total_score", newScoreIfpassed); // Stores new total score to "total_score" key.
@@ -680,8 +681,8 @@ public class GameManager : MonoBehaviour
                     rig.AddForce(CrackedPlayer.GetChild(i).localPosition * Random.Range(350f, 550f)); // Apply force with random magnitude to this rigidbody. CrackedPlayer.GetChild(i).localPosition means the force vector direction is to outside, so this can be used as explosion effect.
                     rig.AddTorque(Random.onUnitSphere * Random.Range(50f, 150f)); // Apply some torque to this rigidbody with random magnitude, with this way, the effect will be more realistic.
                 }
-                if (!isSecondChanceAsked) gameEndUI.touchToRestartText.gameObject.SetActive(true); // Activates touchToRestartText text.
-                gameEndUI.gameOverInfoText.gameObject.SetActive(true); // Activates gameOverInfoText text.
+                if (!isSecondChanceAsked) gameEndUI.TouchToRestartText.gameObject.SetActive(true); // Activates touchToRestartText text.
+                gameEndUI.GameOverInfoText.gameObject.SetActive(true); // Activates gameOverInfoText text.
                 break;
         }
         if (endingType == EndingTypes.COMPLETE || endingType == EndingTypes.PASSEDALLLEVELS)
@@ -704,32 +705,32 @@ public class GameManager : MonoBehaviour
     IEnumerator SecondChangeCounter() // A counter for second chance
     {
         int remainingTime = secondChanceTimeCounterMax - 1; // Counting range will be 0-secondChanceTimeCounterMax-1 range.
-        gameEndUI.secondChanceCounterText.text = secondChanceTimeCounterMax.ToString(); // Sets counter text as max value.
-        gameEndUI.secondChanceCounterText.gameObject.SetActive(true); // Section 10 - Comment: Arranges second chance UI.
-        gameEndUI.secondChanceInfoText.gameObject.SetActive(true);
-        gameEndUI.secondChanceWatchAdText.gameObject.SetActive(true);
-        gameEndUI.totalScoreValue.gameObject.SetActive(false);
-        gameEndUI.totalScoreText.gameObject.SetActive(false);
-        gameEndUI.currentScoreText.gameObject.SetActive(false);
-        gameEndUI.currentScoreValue.gameObject.SetActive(false); // End of Section 10
+        gameEndUI.SecondChanceCounterText.text = secondChanceTimeCounterMax.ToString(); // Sets counter text as max value.
+        gameEndUI.SecondChanceCounterText.gameObject.SetActive(true); // Section 10 - Comment: Arranges second chance UI.
+        gameEndUI.SecondChanceInfoText.gameObject.SetActive(true);
+        gameEndUI.SecondChanceWatchAdText.gameObject.SetActive(true);
+        gameEndUI.TotalScoreValue.gameObject.SetActive(false);
+        gameEndUI.TotalScoreText.gameObject.SetActive(false);
+        gameEndUI.CurrentScoreText.gameObject.SetActive(false);
+        gameEndUI.CurrentScoreValue.gameObject.SetActive(false); // End of Section 10
         yield return new WaitForSeconds(0.4f);
         while (remainingTime > -1)
         {
-            gameEndUI.secondChanceCounterText.GetComponent<Animation>().Play("SecondChanceDecreaseAnim");
+            gameEndUI.SecondChanceCounterText.GetComponent<Animation>().Play("SecondChanceDecreaseAnim");
             yield return new WaitForSeconds(0.33f);
-            gameEndUI.secondChanceCounterText.text = remainingTime.ToString();
+            gameEndUI.SecondChanceCounterText.text = remainingTime.ToString();
             remainingTime--;
             yield return new WaitForSeconds(0.66f);
         }
 
-        gameEndUI.secondChanceCounterText.gameObject.SetActive(false); // Section 10 - Comment: Arranges game end UI after waiting for second chance.
-        gameEndUI.secondChanceInfoText.gameObject.SetActive(false);
-        gameEndUI.secondChanceWatchAdText.gameObject.SetActive(false);
-        gameEndUI.totalScoreValue.gameObject.SetActive(true);
-        gameEndUI.totalScoreText.gameObject.SetActive(true);
-        gameEndUI.currentScoreText.gameObject.SetActive(true);
-        gameEndUI.currentScoreValue.gameObject.SetActive(true);
-        gameEndUI.touchToRestartText.gameObject.SetActive(true);// End of Section 10
+        gameEndUI.SecondChanceCounterText.gameObject.SetActive(false); // Section 10 - Comment: Arranges game end UI after waiting for second chance.
+        gameEndUI.SecondChanceInfoText.gameObject.SetActive(false);
+        gameEndUI.SecondChanceWatchAdText.gameObject.SetActive(false);
+        gameEndUI.TotalScoreValue.gameObject.SetActive(true);
+        gameEndUI.TotalScoreText.gameObject.SetActive(true);
+        gameEndUI.CurrentScoreText.gameObject.SetActive(true);
+        gameEndUI.CurrentScoreValue.gameObject.SetActive(true);
+        gameEndUI.TouchToRestartText.gameObject.SetActive(true);// End of Section 10
 
         secondChanceCoroutine = null; // Indicates counting is finished with no response, also indicates this coroutine is finished.
     }
@@ -793,7 +794,11 @@ public class GameManager : MonoBehaviour
 #endif
     public void RestartGame()
     {
-        if (SceneManager.sceneCount != 1 || creditOpenedBlocker) return; // If the game is playing in the editor, this method is not needed.
+        if (SceneManager.sceneCount != 1 || creditOpenedBlocker)
+        {
+            return; // If the game is playing in the editor, this method is not needed.
+        }
+
         bool isSecondChanceWanted = false;
         if (secondChanceCoroutine != null) // If this condition is true, the player wanted second chance
         {
@@ -802,22 +807,26 @@ public class GameManager : MonoBehaviour
             secondChanceCoroutine = null; // Indicates second chance counter is not working.
         }
         gameEndUI.GameEndUIParent.gameObject.SetActive(false); // Deactive game end UI, because game will restart.
-        gameEndUI.secondChanceCounterText.gameObject.SetActive(false); // Section 11 - Comment: Arranges game end UI after waiting for second chance. This is needed because if the player wants second chance and starts game again until ending second chance lives, then when the game ends, the second chance UI is shown. This codes fix this.
-        gameEndUI.secondChanceInfoText.gameObject.SetActive(false);
-        gameEndUI.secondChanceWatchAdText.gameObject.SetActive(false);
-        gameEndUI.totalScoreValue.gameObject.SetActive(true);
-        gameEndUI.totalScoreText.gameObject.SetActive(true);
-        gameEndUI.currentScoreText.gameObject.SetActive(true);
-        gameEndUI.currentScoreValue.gameObject.SetActive(true); // End of Section 11
+        gameEndUI.SecondChanceCounterText.gameObject.SetActive(false); // Section 11 - Comment: Arranges game end UI after waiting for second chance. This is needed because if the player wants second chance and starts game again until ending second chance lives, then when the game ends, the second chance UI is shown. This codes fix this.
+        gameEndUI.SecondChanceInfoText.gameObject.SetActive(false);
+        gameEndUI.SecondChanceWatchAdText.gameObject.SetActive(false);
+        gameEndUI.TotalScoreValue.gameObject.SetActive(true);
+        gameEndUI.TotalScoreText.gameObject.SetActive(true);
+        gameEndUI.CurrentScoreText.gameObject.SetActive(true);
+        gameEndUI.CurrentScoreValue.gameObject.SetActive(true); // End of Section 11
 
         if (isSecondChanceWanted) // If second chance has been given
         {
 #if UNITY_ADS
             UnityEngine.Advertisements.Advertisement.Show(); // Show an AD.
 #endif
-            if (CrackedPlayer != null) Destroy(CrackedPlayer.gameObject); // Destroy cracked player to start game again.
+            if (CrackedPlayer != null)
+            {
+                Destroy(CrackedPlayer.gameObject); // Destroy cracked player to start game again.
+            }
+
             CrackedPlayer = null; // Indicates there is no cracked player.
-            Player = Instantiate<GameObject>(PlayerSample).transform; // There is no player to start game again, so this line instantiates player again.
+            Player = Instantiate(PlayerSample).transform; // There is no player to start game again, so this line instantiates player again.
             isGameEnded = false; // Marks the game is not ended.
             endingType = EndingTypes.NONE; // This line is to not do under this line and also resets game ending indicator.
         }
@@ -825,29 +834,28 @@ public class GameManager : MonoBehaviour
         switch (endingType)
         {
             case EndingTypes.COMPLETE: // On complete level action.
-                gameEndUI.touchToContinue.gameObject.SetActive(false); // Deactivates touchToContinue text.
-                gameEndUI.passedInfoText.gameObject.SetActive(false); // Deactivates passedInfoText text.
+                gameEndUI.TouchToContinue.gameObject.SetActive(false); // Deactivates touchToContinue text.
+                gameEndUI.PassedInfoText.gameObject.SetActive(false); // Deactivates passedInfoText text.
                 if (!isSecondChanceWanted) LoadLevel(currentLevel + 1); // Loads next level.
                 break;
             case EndingTypes.PASSEDALLLEVELS: // On passed all levels action.
-                gameEndUI.touchToRestartText.gameObject.SetActive(false); // Deactivates touchToRestartText text.
-                gameEndUI.passAllLevelsInfoText.gameObject.SetActive(false); // Deactivates passAllLevelsInfoText text.
+                gameEndUI.TouchToRestartText.gameObject.SetActive(false); // Deactivates touchToRestartText text.
+                gameEndUI.PassAllLevelsInfoText.gameObject.SetActive(false); // Deactivates passAllLevelsInfoText text.
                 if (!isSecondChanceWanted) LoadLevel(currentLevel); // Loads same level.
                 break;
             case EndingTypes.GAMEOVER: // On gameover level action.
-                gameEndUI.touchToRestartText.gameObject.SetActive(false); // Deactivates touchToRestartText text.
-                gameEndUI.gameOverInfoText.gameObject.SetActive(false); // Deactivates gameOverInfoText text.
+                gameEndUI.TouchToRestartText.gameObject.SetActive(false); // Deactivates touchToRestartText text.
+                gameEndUI.GameOverInfoText.gameObject.SetActive(false); // Deactivates gameOverInfoText text.
                 if (!isSecondChanceWanted) LoadLevel(currentLevel); // Loads same level.
                 break;
         }
     }
     void OnApplicationPause(bool isPaused) // If the game is paused, Unity framework invokes this method automatically.
     {
-#if UNITY_ANDROID && !UNITY_EDITOR
-        // TODO Vibration
-        if(isPaused) 
-        //Vibration.Cancel(); // Stops the vibration
-#endif
+        if (isPaused)
+        {
+            Vibration.CancelAndroid();
+        }
     }
 
     private void TriggerLiveAutoGenerator()
@@ -865,9 +873,9 @@ public class GameManager : MonoBehaviour
         AutoGeneratorColorPair colorPair = colorPairs[Random.Range(0, colorPairs.Count)];
         int patternIndex = Random.Range(0, platformSamples.Length);
         Step pattern = platformSamples[patternIndex];
-        float snapAngle = 360f / (float)pattern.count;
+        float snapAngle = 360f / (float)pattern.Count;
         float lastAngle = Random.Range(0f, 360f);
-        int[] stepIsObstacleArray = new int[pattern.count];
+        int[] stepIsObstacleArray = new int[pattern.Count];
         float speed = (Random.Range(0f,
                            autoGeneratorHardnessCurve.Evaluate((float)currentLevel / (maxHardnessLevelNumber + 1))) +
                        1.5f) *
@@ -877,7 +885,7 @@ public class GameManager : MonoBehaviour
 
         bool isAnyPlatformNormal = false;
         
-        for (int j = 0; j < pattern.count; j++)
+        for (int j = 0; j < pattern.Count; j++)
         {
             stepIsObstacleArray[j] = Random.Range(0, 2);
             
@@ -889,7 +897,7 @@ public class GameManager : MonoBehaviour
 
         if (!isAnyPlatformNormal)
         {
-            stepIsObstacleArray[Random.Range(0, pattern.count)] = 0;
+            stepIsObstacleArray[Random.Range(0, pattern.Count)] = 0;
         }
 
         for (int stepIndex = 0; stepIndex < stepCount; stepIndex++)
@@ -901,7 +909,7 @@ public class GameManager : MonoBehaviour
             {
                 isAnyPlatformNormal = false;
                 
-                for (int j = 0; j < pattern.count; j++)
+                for (int j = 0; j < pattern.Count; j++)
                 {
                     stepIsObstacleArray[j] = Random.Range(0, 2);
                     
@@ -913,11 +921,11 @@ public class GameManager : MonoBehaviour
 
                 if (!isAnyPlatformNormal)
                 {
-                    stepIsObstacleArray[Random.Range(0, pattern.count)] = 0;
+                    stepIsObstacleArray[Random.Range(0, pattern.Count)] = 0;
                 }
 
                 angleDifference += (Random.Range(0f, 1f) < 0.5f ? -1f : 1f) * snapAngle *
-                                   Random.Range(1, pattern.count);
+                                   Random.Range(1, pattern.Count);
                 if (angleDifference >= 360)
                 {
                     angleDifference = 360 - angleDifference;
@@ -929,9 +937,9 @@ public class GameManager : MonoBehaviour
             }
 
             Color normalPlatformColor =
-                colorPair.normalPlatformGradientColor.Evaluate(stepIndex / (float)stepCount);
+                colorPair.NormalPlatformGradientColor.Evaluate(stepIndex / (float)stepCount);
             Color obstaclePlatformColor =
-                colorPair.obstaclePlatformGradientColor.Evaluate(stepIndex / (float)stepCount);
+                colorPair.ObstaclePlatformGradientColor.Evaluate(stepIndex / (float)stepCount);
 
             int normalRed = (int)(normalPlatformColor.r * 255f);
             int normalGreen = (int)(normalPlatformColor.g * 255f);
@@ -940,7 +948,6 @@ public class GameManager : MonoBehaviour
             int obstacleRed = (int)(obstaclePlatformColor.r * 255f);
             int obstacleGreen = (int)(obstaclePlatformColor.g * 255f);
             int obstacleBlue = (int)(obstaclePlatformColor.b * 255f);
-
 
             float scaleValue = scaleCurve.Evaluate((float)stepIndex / stepCount);
             string stepContent = speed.ToString(CultureInfo.InvariantCulture) + "/" +
@@ -955,7 +962,7 @@ public class GameManager : MonoBehaviour
                                  scaleValue.ToString(CultureInfo.InvariantCulture) + "/" +
                                  scaleValue.ToString(CultureInfo.InvariantCulture) + "/";
 
-            for (int index = 0; index < pattern.count; index++)
+            for (int index = 0; index < pattern.Count; index++)
             {
                 stepContent += stepIsObstacleArray[index].ToString(CultureInfo.InvariantCulture);
             }
@@ -990,12 +997,12 @@ public class GameManager : MonoBehaviour
             int stepId = int.Parse(stepsStrings[2]);
 
             string[] stepColorStrings = stepsStrings[3].Split('_');
-            Color stepColor = new Color(float.Parse(stepColorStrings[0], CultureInfo.InvariantCulture) / 255f,
+            Color stepColor = new(float.Parse(stepColorStrings[0], CultureInfo.InvariantCulture) / 255f,
                 float.Parse(stepColorStrings[1], CultureInfo.InvariantCulture) / 255f,
                 float.Parse(stepColorStrings[2], CultureInfo.InvariantCulture) / 255f);
 
             string[] obstacleColorStrings = stepsStrings[4].Split('_');
-            Color obstacleColor = new Color(float.Parse(obstacleColorStrings[0], CultureInfo.InvariantCulture) / 255f,
+            Color obstacleColor = new(float.Parse(obstacleColorStrings[0], CultureInfo.InvariantCulture) / 255f,
                 float.Parse(obstacleColorStrings[1], CultureInfo.InvariantCulture) / 255f,
                 float.Parse(obstacleColorStrings[2], CultureInfo.InvariantCulture) / 255f);
 
@@ -1008,7 +1015,7 @@ public class GameManager : MonoBehaviour
                 isObstacleArray[i] = stepsStrings[7][i] == '1';
             }
 
-            levelEnding += platformSamples[stepId].height;
+            levelEnding += platformSamples[stepId].Height;
             stepGenerationQueue.Enqueue(new StepGeneration(stepRotationSpeed, stepId, stepAngle, stepColor,
                 obstacleColor, scaleX, scaleZ, isObstacleArray));
         }
@@ -1027,30 +1034,4 @@ public class GameManager : MonoBehaviour
     private bool IsTrapOccurred(float levelIndex) => IsTrapOccurred(levelIndex, trapOccurenceDecreaser);
     private bool IsTrapOccurredForSpeed(float levelIndex) => IsTrapOccurred(levelIndex, speedTrapOccurenceDecreaser);
     
-    [Serializable]
-    public class Step
-    {
-        public int count;
-        public float height;
-        public GameObject normalPlatformSample, obstaclePlatformSample;
-    }
-    [Serializable]
-    public struct GameEndUI
-    {
-        public Transform GameEndUIParent;
-        public Image backgroundPanel;
-        public Text totalScoreValue, totalScoreText, currentScoreText, currentScoreValue, touchToRestartText, passAllLevelsInfoText, touchToContinue, gameOverInfoText, passedInfoText, secondChanceCounterText, secondChanceInfoText, secondChanceWatchAdText;
-    }
-    
-    [Serializable]
-    public struct BackgroundColorPair
-    {
-        public Gradient BackgroundColorTop, BackgroundColorBottom;
-    }
-    
-    [Serializable]
-    public class AutoGeneratorColorPair
-    {
-        public Gradient normalPlatformGradientColor, obstaclePlatformGradientColor;
-    }
 }
