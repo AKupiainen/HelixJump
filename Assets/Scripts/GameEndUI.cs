@@ -62,6 +62,9 @@ public struct GameEndUI
     [FormerlySerializedAs("secondChanceWatchAdText")]
     private Text _secondChanceWatchAdText;
 
+    [SerializeField] 
+    private Animation _secondChanceAnimator;
+
     public Transform GameEndUIParent => _gameEndUIParent;
     public Image BackgroundPanel => _backgroundPanel;
     public Text TotalScoreValue => _totalScoreValue;
@@ -76,4 +79,5 @@ public struct GameEndUI
     public Text SecondChanceCounterText => _secondChanceCounterText;
     public Text SecondChanceInfoText => _secondChanceInfoText;
     public Text SecondChanceWatchAdText => _secondChanceWatchAdText;
+    public Animation SecondChanceAnimator => _secondChanceAnimator;
 }

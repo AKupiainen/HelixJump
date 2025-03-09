@@ -115,20 +115,27 @@ public class GameManager : MonoBehaviour
     bool isToleranceEffectActivated;
     bool isVibrationEnabled;
     bool isMusicEnabled;
-    void Start()
+    
+    
+    private void Start()
     {
-        LoadLevel((SceneManager.sceneCount == 1) ? PlayerPrefs.GetInt("passed_levels") : -1); // When LevelCreator scene is opened, the scene count becomes 2, so if scene count is 1, that means the gamescene is opened and load the level, else LoadLevel(-1) => That means, the LevelCreatorScene is opened and don't load level normally.
-        meteorRandomValue = Random.Range(0, MeteorGenerateTimeCounterRandomMax); // Pick a random value for meteorRandomValue, this is needed for starting of the time counter.
+        LoadLevel(1); 
+        meteorRandomValue = Random.Range(0, MeteorGenerateTimeCounterRandomMax);
     }
-    void Update()
+    
+    private void Update()
     {
-        StepUpdate(); // Call SteUpdate to moving and deleting steps.
-        if (Player != null) PlayerUpdate(); // If there is a player, call PlayerUpdate to move player object and break platforms.
+        StepUpdate(); 
+        
+        if (Player != null)
+        {
+            PlayerUpdate();
+        }
     }
     
     public void LoadLevel(int levelNumber)
     {
-        scoreValue = 0; // Section 2 - Comment: Revert all changes to restart game properly.
+        scoreValue = 0;
         secondChanceLimitCounter = secondChanceLimit;
         scoreValueText.text = "0";
         bonusBreakingTime = 0;
@@ -144,6 +151,7 @@ public class GameManager : MonoBehaviour
         toleratedStep = null;
         generatedLevelSteps.Clear();
         stepGenerationQueue.Clear();
+        
         if (isVibrationEnabled)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -614,22 +622,20 @@ public class GameManager : MonoBehaviour
     void GameEnd() // Shows end game UI, updates total score and score values on the end game UI and resets some visual components.
     {
         isGameEnded = true; // If there is no steps else endingPlatform, game ended.
-#if UNITY_EDITOR // If the game is playing on the Editor.
-        if (SceneManager.sceneCount != 1) // If opened scene count is not 1, that means the LevelCreatorScene is opened.
+
+        if (secondChanceCoroutine != null)
         {
-            Invoke("LevelEditorDelayedStop", 1); // Invokes LevelEditorDelayedStop to stop play mode as delayed.
+            StopCoroutine(secondChanceCoroutine); // If second chance counter is working, stop it.
         }
-#endif
-        if (secondChanceCoroutine != null) StopCoroutine(secondChanceCoroutine); // If second chance counter is working, stop it.
+
         bool isSecondChanceAsked = false;
-#if UNITY_ADS
-        if (isSecondChanceActive && secondChanceLimitCounter > 0 && generatedLevelSteps.Count > 1 && UnityEngine.Advertisements.Advertisement.IsReady())
+
+        if (isSecondChanceActive && secondChanceLimitCounter > 0 && generatedLevelSteps.Count > 1 && AdMobManager.Instance.IsRewardedAdLoaded)
         {
             isSecondChanceAsked = true;
-            secondChanceCoroutine = StartCoroutine(SecondChangeCounter());
+            secondChanceCoroutine = StartCoroutine(SecondChanceCounter());
             secondChanceLimitCounter--;
         }
-#endif
         gameEndUI.GameEndUIParent.gameObject.SetActive(true); // Activates game end UI.
         gameEndUI.PassedInfoText.gameObject.SetActive(false); // This line fixes second chance bug.
         gameEndUI.PassAllLevelsInfoText.gameObject.SetActive(false); // This line fixes second chance bug.
@@ -703,58 +709,61 @@ public class GameManager : MonoBehaviour
             endingPlatform.Find("ConfettiGeneratorRight").GetComponent<ParticleSystem>().Play();
         }
     }
-    IEnumerator SecondChangeCounter() // A counter for second chance
+    
+    private IEnumerator SecondChanceCounter()
     {
-        int remainingTime = secondChanceTimeCounterMax - 1; // Counting range will be 0-secondChanceTimeCounterMax-1 range.
-        gameEndUI.SecondChanceCounterText.text = secondChanceTimeCounterMax.ToString(); // Sets counter text as max value.
-        gameEndUI.SecondChanceCounterText.gameObject.SetActive(true); // Section 10 - Comment: Arranges second chance UI.
+        int remainingTime = secondChanceTimeCounterMax - 1;
+    
+        gameEndUI.SecondChanceCounterText.text = secondChanceTimeCounterMax.ToString();
+        gameEndUI.SecondChanceCounterText.gameObject.SetActive(true);
         gameEndUI.SecondChanceInfoText.gameObject.SetActive(true);
         gameEndUI.SecondChanceWatchAdText.gameObject.SetActive(true);
         gameEndUI.TotalScoreValue.gameObject.SetActive(false);
         gameEndUI.TotalScoreText.gameObject.SetActive(false);
         gameEndUI.CurrentScoreText.gameObject.SetActive(false);
-        gameEndUI.CurrentScoreValue.gameObject.SetActive(false); // End of Section 10
+        gameEndUI.CurrentScoreValue.gameObject.SetActive(false);
+
         yield return new WaitForSeconds(0.4f);
-        while (remainingTime > -1)
+
+        while (remainingTime >= 0)
         {
-            gameEndUI.SecondChanceCounterText.GetComponent<Animation>().Play("SecondChanceDecreaseAnim");
+            gameEndUI.SecondChanceAnimator.Play("SecondChanceDecreaseAnim");
+            
             yield return new WaitForSeconds(0.33f);
+        
             gameEndUI.SecondChanceCounterText.text = remainingTime.ToString();
             remainingTime--;
+
             yield return new WaitForSeconds(0.66f);
         }
 
-        gameEndUI.SecondChanceCounterText.gameObject.SetActive(false); // Section 10 - Comment: Arranges game end UI after waiting for second chance.
+        gameEndUI.SecondChanceCounterText.gameObject.SetActive(false);
         gameEndUI.SecondChanceInfoText.gameObject.SetActive(false);
         gameEndUI.SecondChanceWatchAdText.gameObject.SetActive(false);
         gameEndUI.TotalScoreValue.gameObject.SetActive(true);
         gameEndUI.TotalScoreText.gameObject.SetActive(true);
         gameEndUI.CurrentScoreText.gameObject.SetActive(true);
         gameEndUI.CurrentScoreValue.gameObject.SetActive(true);
-        gameEndUI.TouchToRestartText.gameObject.SetActive(true);// End of Section 10
+        gameEndUI.TouchToRestartText.gameObject.SetActive(true);
 
-        secondChanceCoroutine = null; // Indicates counting is finished with no response, also indicates this coroutine is finished.
+        secondChanceCoroutine = null;
     }
+    
     IEnumerator ToleranceEffect()
     {
-        var currentScale = toleratedStep.localScale.x;
-        var animatingScale = currentScale;
+        float currentScale = toleratedStep.localScale.x;
+        float animatingScale = currentScale;
+        
         if (isVibrationEnabled)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
-                Vibration.Vibrate(new long[] { 10, 40, 40, 10 }, 1);
-                StartCoroutine(CancelVibration(0.5f));
-#elif UNITY_IOS && !UNITY_EDITOR
-                Handheld.Vibrate();
-#endif
-        }    
+            Vibration.VibratePeek();
+        }  
+        
         while (currentScale * 1.5f - animatingScale > 0.1f)
         {
             if(toleratedStep == null)
             {
-#if UNITY_ANDROID && !UNITY_EDITOR
-                Vibration.Cancel();
-#endif
+                Vibration.CancelAndroid();
                 isToleranceEffectActivated = false;
                 yield break;
             }
@@ -762,13 +771,12 @@ public class GameManager : MonoBehaviour
             toleratedStep.localScale = new Vector3(animatingScale,1,animatingScale);
             yield return null;
         }
+        
         while (animatingScale - currentScale > 0.06f)
         {
             if (toleratedStep == null)
             {
-#if UNITY_ANDROID && !UNITY_EDITOR
-                Vibration.Cancel();
-#endif
+                Vibration.CancelAndroid();
                 isToleranceEffectActivated = false;
                 yield break;
             }
@@ -776,31 +784,15 @@ public class GameManager : MonoBehaviour
             toleratedStep.localScale = new Vector3(animatingScale, 1, animatingScale);
             yield return null;
         }
+        
         toleratedStep.localScale = new Vector3(currentScale, 1, currentScale);
 
         toleratedStep = null;
         isToleranceEffectActivated = false;
     }
-    private IEnumerator CancelVibration(float time)
-    {
-        yield return new WaitForSeconds(time);
-        Vibration.CancelAndroid();
-    }
-    
-#if UNITY_EDITOR
-    private void LevelEditorDelayedStop()
-    { 
-        UnityEditor.EditorApplication.isPlaying = false;
-    }
-#endif
     
     public void RestartGame()
     {
-        if (SceneManager.sceneCount != 1 || creditOpenedBlocker)
-        {
-            return;
-        }
-
         bool isSecondChanceWanted = secondChanceCoroutine != null && generatedLevelSteps.Count > 1;
         
         if (secondChanceCoroutine != null)
