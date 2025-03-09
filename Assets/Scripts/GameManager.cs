@@ -195,8 +195,8 @@ public class GameManager : MonoBehaviour
 
             } // End of Section 6
             var endingPlatform = Instantiate<GameObject>(endingPlatformSample, GeneratedObjects).transform; // Section 7 - Comment: Instantiate endingPlatform directly, because LevelCreatorScene is opened, and set its position. Also, add it to generatedLevelSteps by copying RotationSpeed of previous step. -1 StepIndex means, this step is a endingPlatform
-            endingPlatform.position = new Vector3(0, generatedLevelSteps[generatedLevelSteps.Count - 1].step.position.y - 0.8f, 0);
-            generatedLevelSteps.Add(new StepReferenceToGame(generatedLevelSteps[generatedLevelSteps.Count - 1].rotationSpeed, -1, endingPlatform)); // End of Section 7
+            endingPlatform.position = new Vector3(0, generatedLevelSteps[generatedLevelSteps.Count - 1].Step.position.y - 0.8f, 0);
+            generatedLevelSteps.Add(new StepReferenceToGame(generatedLevelSteps[generatedLevelSteps.Count - 1].RotationSpeed, -1, endingPlatform)); // End of Section 7
             return; // The remaining of the method isn't needed, because this scene is LevelCreator scene.
         }
 
@@ -247,14 +247,14 @@ public class GameManager : MonoBehaviour
             var generatedStep = new GameObject("Step").transform; // Generate the step.
             generatedStep.SetParent(GeneratedObjects); // Set parent of new step as GeneratedObjects. With this way all steps will under the GeneratedObjects gameobject.
             generatedStep.position = new Vector3(0, stepYOffset, 0); // Set step position.
-            float lastStepAngle = generatedLevelSteps.Count > 0 ? generatedLevelSteps[generatedLevelSteps.Count - 1].step.eulerAngles.y : 0; // Get previous step angle to calculate relative rotate angle. If the index is equal to 0, that means, this step is first step of the level and relative angle must be 0.
-            generatedStep.eulerAngles = new Vector3(0, lastStepAngle + stepInfo.stepAngle, 0); //  Set rotation of the step by calculating relative rotate angle.
-            generatedLevelSteps.Add(new StepReferenceToGame(stepInfo.rotationSpeed, stepInfo.stepIndex, generatedStep)); // Add this step to generatedLevelSteps. generatedLevelSteps is used for rotating and deleting steps with StepUpdate method.
-            Step step = platformSamples[stepInfo.stepIndex]; // This is used for getting obstaclePlatformSample, normalPlatformSample, count and height informations.
-            for (int j = 0; j < stepInfo.isObstacleArray.Length; j++) // For loop does this for each platform
+            float lastStepAngle = generatedLevelSteps.Count > 0 ? generatedLevelSteps[generatedLevelSteps.Count - 1].Step.eulerAngles.y : 0; // Get previous step angle to calculate relative rotate angle. If the index is equal to 0, that means, this step is first step of the level and relative angle must be 0.
+            generatedStep.eulerAngles = new Vector3(0, lastStepAngle + stepInfo.StepAngle, 0); //  Set rotation of the step by calculating relative rotate angle.
+            generatedLevelSteps.Add(new StepReferenceToGame(stepInfo.RotationSpeed, stepInfo.StepIndex, generatedStep)); // Add this step to generatedLevelSteps. generatedLevelSteps is used for rotating and deleting steps with StepUpdate method.
+            Step step = platformSamples[stepInfo.StepIndex]; // This is used for getting obstaclePlatformSample, normalPlatformSample, count and height informations.
+            for (int j = 0; j < stepInfo.IsObstacleArray.Length; j++) // For loop does this for each platform
             {
-                var generatedPlatform = Instantiate<GameObject>(stepInfo.isObstacleArray[j] ? step.obstaclePlatformSample : step.normalPlatformSample, generatedStep).transform; // Generate platform with getting the information from isObstacleArray[j].
-                generatedPlatform.name = "Platform_" + (stepInfo.isObstacleArray[j] ? "1" : "0"); // Name the platform. I added _0 or _1 information end of the name. _0 means => normal platform, _1 means => obstacle platform. _ character is used for splitting two pieces easily with Split method of string.
+                var generatedPlatform = Instantiate<GameObject>(stepInfo.IsObstacleArray[j] ? step.obstaclePlatformSample : step.normalPlatformSample, generatedStep).transform; // Generate platform with getting the information from isObstacleArray[j].
+                generatedPlatform.name = "Platform_" + (stepInfo.IsObstacleArray[j] ? "1" : "0"); // Name the platform. I added _0 or _1 information end of the name. _0 means => normal platform, _1 means => obstacle platform. _ character is used for splitting two pieces easily with Split method of string.
                 generatedPlatform.localEulerAngles = new Vector3(0, (360f / (float)step.count) * j, 0); // Set rotate of the platform. Rotate difference amount is 360/count.
 
                 if (i == 0)
@@ -267,10 +267,10 @@ public class GameManager : MonoBehaviour
                     col.enabled = true;
                 }
 
-                if (generatedPlatform.GetChild(0).GetComponent<Renderer>().material.shader.name == "Custom/PlatformShader") generatedPlatform.GetChild(0).GetComponent<Renderer>().material.color = stepInfo.isObstacleArray[j] ? stepInfo.obstacleColor : stepInfo.stepColor; // If platform sample has Custom/PlatformShader, set its color to stepInfo.obstacleColor or stepInfo.stepColor. With this way, we can use textured platforms with other materials.
+                if (generatedPlatform.GetChild(0).GetComponent<Renderer>().material.shader.name == "Custom/PlatformShader") generatedPlatform.GetChild(0).GetComponent<Renderer>().material.color = stepInfo.IsObstacleArray[j] ? stepInfo.ObstacleColor : stepInfo.StepColor; // If platform sample has Custom/PlatformShader, set its color to stepInfo.obstacleColor or stepInfo.stepColor. With this way, we can use textured platforms with other materials.
             }
             stepYOffset -= step.height; // Iterate the offset.
-            generatedStep.localScale = new Vector3(stepInfo.scaleX, 1, stepInfo.scaleZ); // Set step size with information of stepInfo.
+            generatedStep.localScale = new Vector3(stepInfo.ScaleX, 1, stepInfo.ScaleZ); // Set step size with information of stepInfo.
             if (stepGenerationQueue.Count == 0) break; // If there is no remaining steps in stepGenerationQueue, break loop. If count is greater than stepGenerationQueue count, this line happens.
         }
     }
@@ -280,24 +280,24 @@ public class GameManager : MonoBehaviour
         StepGeneration stepInfo = stepGenerationQueue.Dequeue(); // Get next step from stepGenerationQueue. I used queue for storing steps, because steps can be only adding with 0 index and remove with last index.
         var generatedStep = new GameObject("Step").transform; // Generate the step.
         generatedStep.SetParent(GeneratedObjects); // Set parent of new step as GeneratedObjects. With this way all steps will under the GeneratedObjects gameobject.
-        generatedStep.position = new Vector3(0, generatedLevelSteps[generatedLevelSteps.Count - 1].step.position.y - platformSamples[stepInfo.stepIndex].height, 0); // Set step position. The position of this step is relative to previous step.
-        float lastStepAngle = generatedLevelSteps[generatedLevelSteps.Count - 1].step.eulerAngles.y; // Previous step rotation angle. This will be used for calculating relative rotation angle.
-        generatedStep.eulerAngles = new Vector3(0, lastStepAngle + stepInfo.stepAngle, 0); // Set rotation of the step by calculating relative rotate angle.
-        generatedLevelSteps.Add(new StepReferenceToGame(stepInfo.rotationSpeed, stepInfo.stepIndex, generatedStep)); // Add this step to generatedLevelSteps. generatedLevelSteps is used for rotating and deleting steps with StepUpdate method.
-        for (int j = 0; j < stepInfo.isObstacleArray.Length; j++) // For loop does this for each platform
+        generatedStep.position = new Vector3(0, generatedLevelSteps[generatedLevelSteps.Count - 1].Step.position.y - platformSamples[stepInfo.StepIndex].height, 0); // Set step position. The position of this step is relative to previous step.
+        float lastStepAngle = generatedLevelSteps[generatedLevelSteps.Count - 1].Step.eulerAngles.y; // Previous step rotation angle. This will be used for calculating relative rotation angle.
+        generatedStep.eulerAngles = new Vector3(0, lastStepAngle + stepInfo.StepAngle, 0); // Set rotation of the step by calculating relative rotate angle.
+        generatedLevelSteps.Add(new StepReferenceToGame(stepInfo.RotationSpeed, stepInfo.StepIndex, generatedStep)); // Add this step to generatedLevelSteps. generatedLevelSteps is used for rotating and deleting steps with StepUpdate method.
+        for (int j = 0; j < stepInfo.IsObstacleArray.Length; j++) // For loop does this for each platform
         {
-            Step step = platformSamples[stepInfo.stepIndex]; // This is used for getting obstaclePlatformSample, normalPlatformSample, count informations.
-            var generatedPlatform = Instantiate<GameObject>(stepInfo.isObstacleArray[j] ? step.obstaclePlatformSample : step.normalPlatformSample, generatedStep).transform; // Generate platform with getting the information from isObstacleArray[j].
-            generatedPlatform.name = "Platform_" + (stepInfo.isObstacleArray[j] ? "1" : "0"); // Name the platform. I added _0 or _1 information end of the name. _0 means => normal platform, _1 means => obstacle platform. _ character is used for splitting two pieces easily with Split method of string.
+            Step step = platformSamples[stepInfo.StepIndex]; // This is used for getting obstaclePlatformSample, normalPlatformSample, count informations.
+            var generatedPlatform = Instantiate<GameObject>(stepInfo.IsObstacleArray[j] ? step.obstaclePlatformSample : step.normalPlatformSample, generatedStep).transform; // Generate platform with getting the information from isObstacleArray[j].
+            generatedPlatform.name = "Platform_" + (stepInfo.IsObstacleArray[j] ? "1" : "0"); // Name the platform. I added _0 or _1 information end of the name. _0 means => normal platform, _1 means => obstacle platform. _ character is used for splitting two pieces easily with Split method of string.
             generatedPlatform.localEulerAngles = new Vector3(0, (360f / (float)step.count) * j, 0); // Set rotate of the platform. Rotate difference amount is 360/count.
-            if (generatedPlatform.GetChild(0).GetComponent<Renderer>().material.shader.name == "Custom/PlatformShader") generatedPlatform.GetChild(0).GetComponent<Renderer>().material.color = stepInfo.isObstacleArray[j] ? stepInfo.obstacleColor : stepInfo.stepColor; // If platform sample has Custom/PlatformShader, set its color to stepInfo.obstacleColor or stepInfo.stepColor. With this way, we can use textured platforms with other materials.
+            if (generatedPlatform.GetChild(0).GetComponent<Renderer>().material.shader.name == "Custom/PlatformShader") generatedPlatform.GetChild(0).GetComponent<Renderer>().material.color = stepInfo.IsObstacleArray[j] ? stepInfo.ObstacleColor : stepInfo.StepColor; // If platform sample has Custom/PlatformShader, set its color to stepInfo.obstacleColor or stepInfo.stepColor. With this way, we can use textured platforms with other materials.
         }
-        generatedStep.localScale = new Vector3(stepInfo.scaleX, 1, stepInfo.scaleZ); // Set step size with information of stepInfo.
+        generatedStep.localScale = new Vector3(stepInfo.ScaleX, 1, stepInfo.ScaleZ); // Set step size with information of stepInfo.
         if (stepGenerationQueue.Count == 0) // If there is no remaining steps instantiate ending platform.
         {
             var endingPlatform = Instantiate<GameObject>(endingPlatformSample, GeneratedObjects).transform; // Instantiate ending platform with parent of GeneratedObjects. 
             endingPlatform.position = new Vector3(0, generatedStep.position.y - 0.8f, 0); // Set position of the ending platform. Ending platform half height is 0.8.
-            generatedLevelSteps.Add(new StepReferenceToGame(stepInfo.rotationSpeed, -1, endingPlatform)); // Add ending platform to generatedLevelSteps. -1 means, indicating this is an ending platform. Also, copies rotation speed of previous step for the ending platform.
+            generatedLevelSteps.Add(new StepReferenceToGame(stepInfo.RotationSpeed, -1, endingPlatform)); // Add ending platform to generatedLevelSteps. -1 means, indicating this is an ending platform. Also, copies rotation speed of previous step for the ending platform.
             isEndingPlatformGenerated = true; // Indicates ending platform is generated.
         }
     }
@@ -305,13 +305,13 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < generatedLevelSteps.Count; i++) // For loop does this for each generated step in the game scene.
         {
-            if (generatedLevelSteps[i] == null || generatedLevelSteps[i].step.parent != GeneratedObjects) // This condition means if selected step is destroyed or its parent isn't GeneratedObjects.
+            if (generatedLevelSteps[i] == null || generatedLevelSteps[i].Step.parent != GeneratedObjects) // This condition means if selected step is destroyed or its parent isn't GeneratedObjects.
             {
                 generatedLevelSteps.RemoveAt(i); // Just remove step reference from generatedLevelSteps list array.
                 i--; // This is needed, because when 1 item is deleted from list, the all indexes after "i" index are decreases by 1.
                 continue; // Don't do under codes of this and continue.
             }
-            generatedLevelSteps[i].step.eulerAngles += new Vector3(0, generatedLevelSteps[i].rotationSpeed, 0); // Iterate angle of rotation of each step by the rotationSpeed that comes from generatedLevelSteps information.
+            generatedLevelSteps[i].Step.eulerAngles += new Vector3(0, generatedLevelSteps[i].RotationSpeed, 0); // Iterate angle of rotation of each step by the rotationSpeed that comes from generatedLevelSteps information.
         }
     }
     public void PlayerUpdate()
@@ -397,7 +397,7 @@ public class GameManager : MonoBehaviour
             //audioSource.pitch = 1f; // Set pitch to 1. It may be modified.
             //audioSource.PlayOneShot(bounceSoundClip); // Play bounce sound effect, because jump curve has 0 value at 0 time, and this is starting of the bounce.
             var splash = new GameObject("splash").transform; // Generate a game object to use as splash parent.
-            splash.parent = generatedLevelSteps.Count != 1 ? generatedLevelSteps[0].step.GetChild(0).GetChild(0) : generatedLevelSteps[0].step; // If the first step is normal step, the parent is generatedLevelSteps[0].step.GetChild(0).GetChild(0) (This location is under of the platform mesh object). If the generatedLevelSteps = 1, that means this step is an ending platform and the parent is needed to assign differently. The parent must be generatedLevelSteps[0].step.
+            splash.parent = generatedLevelSteps.Count != 1 ? generatedLevelSteps[0].Step.GetChild(0).GetChild(0) : generatedLevelSteps[0].Step; // If the first step is normal step, the parent is generatedLevelSteps[0].step.GetChild(0).GetChild(0) (This location is under of the platform mesh object). If the generatedLevelSteps = 1, that means this step is an ending platform and the parent is needed to assign differently. The parent must be generatedLevelSteps[0].step.
             splash.SetAsLastSibling(); // Set the sibling index as last, because other siblings can be used by other codes by using child indexing.
             var splashSprite = splash.gameObject.AddComponent<SpriteRenderer>(); // Add sprite renderer and store it. Because the splash sprite can be renderer by sprite renderer.
             splashSprite.sprite = splashSpriteSamples[Random.Range(0, splashSpriteSamples.Length)]; // Pick a random splash sprite from splashSpriteSamples.
@@ -405,7 +405,7 @@ public class GameManager : MonoBehaviour
             splash.eulerAngles = new Vector3(90, 0, 0); // Splash effects must be facing up.
             splash.localScale = Vector3.one * splashSpriteScale; // Set scale of the splash sprite.
             splash.position = Player.position; // Set position to Player's position. This is initial position.
-            splash.localPosition = new Vector3(splash.localPosition.x, generatedLevelSteps.Count != 1 ? generatedLevelSteps[0].step.GetChild(0).Find("splashOrigin").localPosition.y : generatedLevelSteps[0].step.Find("splashOrigin").localPosition.y, splash.localPosition.z); // Get splashOrigin object from platform or ending platform where it is located and set y axis of the splash sprite to splashOrigin y axis position.
+            splash.localPosition = new Vector3(splash.localPosition.x, generatedLevelSteps.Count != 1 ? generatedLevelSteps[0].Step.GetChild(0).Find("splashOrigin").localPosition.y : generatedLevelSteps[0].Step.Find("splashOrigin").localPosition.y, splash.localPosition.z); // Get splashOrigin object from platform or ending platform where it is located and set y axis of the splash sprite to splashOrigin y axis position.
             splash.gameObject.AddComponent<SplashDestroyer>(); // Add SplashDestroyer, this destroys splash sprite when it is rotated 1.5 complete turn. (540 degree)
 #if UNITY_ANDROID && !UNITY_EDITOR
         if(isVibrationEnabled && !isToleranceEffectActivated)
@@ -545,11 +545,11 @@ public class GameManager : MonoBehaviour
                 endingType = EndingTypes.GAMEOVER; // The player hit to an obstacle and the game has finished.
                 GameEnd(); // Call game end to end. (like showing end UI)
             }
-            if (isEndingPlatformGenerated && generatedLevelSteps.Last<StepReferenceToGame>().step.position.y < -5f) Camera.position += new Vector3(0, 0.132f * 0.75f * 0.25f, 0);
+            if (isEndingPlatformGenerated && generatedLevelSteps.Last<StepReferenceToGame>().Step.position.y < -5f) Camera.position += new Vector3(0, 0.132f * 0.75f * 0.25f, 0);
             if (generatedLevelSteps.Count != 1) GeneratedObjects.position += new Vector3(0, 0.132f * 1.5f, 0);
             gameStateSlider.value = gameStateSlider.minValue + (GeneratedObjects.position.y / levelEnding) * (gameStateSlider.maxValue - gameStateSlider.minValue);
             if (!isEndingPlatformGenerated && CenterCylinder.transform.position.y < 0.5f) CenterCylinder.transform.position += new Vector3(0, 0.132f * 1.5f, 0);
-            if (isEndingPlatformGenerated && generatedLevelSteps.Count < 25) CenterCylinder.position = new Vector3(0, CenterCylinder.localScale.y + generatedLevelSteps.Last<StepReferenceToGame>().step.position.y, 0);
+            if (isEndingPlatformGenerated && generatedLevelSteps.Count < 25) CenterCylinder.position = new Vector3(0, CenterCylinder.localScale.y + generatedLevelSteps.Last<StepReferenceToGame>().Step.position.y, 0);
             if (generatedLevelSteps.Count == 1) // generatedLevelSteps count is equal to 1, that means there is no normal step, there is only ending platform. End game finished with complete or passed all levels action.
             {
                 // TODO SUCCESS SOUND
@@ -696,7 +696,7 @@ public class GameManager : MonoBehaviour
                 Handheld.Vibrate();
 #endif
             }
-            var endingPlatform = generatedLevelSteps[0].step;
+            var endingPlatform = generatedLevelSteps[0].Step;
             endingPlatform.Find("ConfettiGeneratorLeft").GetComponent<ParticleSystem>().Play();
             endingPlatform.Find("ConfettiGeneratorRight").GetComponent<ParticleSystem>().Play();
         }
@@ -1026,7 +1026,6 @@ public class GameManager : MonoBehaviour
 
     private bool IsTrapOccurred(float levelIndex) => IsTrapOccurred(levelIndex, trapOccurenceDecreaser);
     private bool IsTrapOccurredForSpeed(float levelIndex) => IsTrapOccurred(levelIndex, speedTrapOccurenceDecreaser);
-
     
     [Serializable]
     public class Step
@@ -1034,38 +1033,6 @@ public class GameManager : MonoBehaviour
         public int count;
         public float height;
         public GameObject normalPlatformSample, obstaclePlatformSample;
-    }
-    public class StepReferenceToGame
-    {
-        public float rotationSpeed;
-        public int index;
-        public Transform step;
-        public StepReferenceToGame(float rotationSpeed, int index, Transform step)
-        {
-            this.rotationSpeed = rotationSpeed;
-            this.index = index;
-            this.step = step;
-        }
-    }
-    public class StepGeneration
-    {
-        public float rotationSpeed;
-        public int stepIndex;
-        public float stepAngle;
-        public float scaleX, scaleZ;
-        public Color stepColor, obstacleColor;
-        public bool[] isObstacleArray;
-        public StepGeneration(float rotationSpeed, int stepIndex, float stepAngle, Color stepColor, Color obstacleColor, float scaleX, float scaleZ, bool[] isObstacleArray)
-        {
-            this.rotationSpeed = rotationSpeed;
-            this.stepIndex = stepIndex;
-            this.stepAngle = stepAngle;
-            this.stepColor = stepColor;
-            this.obstacleColor = obstacleColor;
-            this.scaleX = scaleX;
-            this.scaleZ = scaleZ;
-            this.isObstacleArray = isObstacleArray;
-        }
     }
     [System.Serializable]
     public struct GameEndUI
@@ -1078,5 +1045,55 @@ public class GameManager : MonoBehaviour
     public struct BackgroundColorPair
     {
         public Gradient BackgroundColorTop, BackgroundColorBottom;
+    }
+    
+    private class StepReferenceToGame
+    {
+        private readonly float _rotationSpeed;
+        private readonly int _index;
+        private readonly Transform _step;
+
+        public float RotationSpeed => _rotationSpeed;
+        public int Index => _index;
+        public Transform Step => _step;
+
+        public StepReferenceToGame(float rotationSpeed, int index, Transform step)
+        {
+            _rotationSpeed = rotationSpeed;
+            _index = index;
+            _step = step;
+        }
+    }
+
+    private class StepGeneration
+    {
+        private readonly float _rotationSpeed;
+        private readonly int _stepIndex;
+        private readonly float _stepAngle;
+        private readonly float _scaleX, _scaleZ;
+        private readonly Color _stepColor;
+        private readonly Color _obstacleColor;
+        private readonly bool[] _isObstacleArray;
+
+        public float RotationSpeed => _rotationSpeed;
+        public int StepIndex => _stepIndex;
+        public float StepAngle => _stepAngle;
+        public float ScaleX => _scaleX;
+        public float ScaleZ => _scaleZ;
+        public Color StepColor => _stepColor;
+        public Color ObstacleColor => _obstacleColor;
+        public bool[] IsObstacleArray => _isObstacleArray;
+
+        public StepGeneration(float rotationSpeed, int stepIndex, float stepAngle, Color stepColor, Color obstacleColor, float scaleX, float scaleZ, bool[] isObstacleArray)
+        {
+            _rotationSpeed = rotationSpeed;
+            _stepIndex = stepIndex;
+            _stepAngle = stepAngle;
+            _stepColor = stepColor;
+            _obstacleColor = obstacleColor;
+            _scaleX = scaleX;
+            _scaleZ = scaleZ;
+            _isObstacleArray = isObstacleArray;
+        }
     }
 }
