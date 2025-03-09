@@ -102,7 +102,6 @@ public class GameManager : MonoBehaviour
     enum EndingTypes { NONE, COMPLETE, PASSEDALLLEVELS, GAMEOVER };
     EndingTypes endingType = EndingTypes.NONE;
     int currentLevel;
-    AudioSource audioSource;
     float scoreValue;
     int secondChanceLimitCounter;
     bool creditOpenedBlocker;
@@ -116,7 +115,6 @@ public class GameManager : MonoBehaviour
     {
         LoadLevel((SceneManager.sceneCount == 1) ? PlayerPrefs.GetInt("passed_levels") : -1); // When LevelCreator scene is opened, the scene count becomes 2, so if scene count is 1, that means the gamescene is opened and load the level, else LoadLevel(-1) => That means, the LevelCreatorScene is opened and don't load level normally.
         meteorRandomValue = Random.Range(0, MeteorGenerateTimeCounterRandomMax); // Pick a random value for meteorRandomValue, this is needed for starting of the time counter.
-        audioSource = GetComponent<AudioSource>(); // Get audio source component of GameManager object, this is needed for playing sound effects.
     }
     void Update()
     {
@@ -318,8 +316,10 @@ public class GameManager : MonoBehaviour
         float normalizedBreakingBonus = bonusBreakingTime / breakingBonusMax; // Normalizes bonusBreakingTime to 0-1 range.
         if (!isGameEnded && generatedLevelSteps.Count == 1) // This if block is only for making game end more precise. Otherwise some errors may encounter.
         {
-            audioSource.pitch = 1; // Set pitch to 1, because the pitch of the audioSource may be modified.
-            audioSource.PlayOneShot(successSoundClip); // Play success sound clip. Because game is ended with complete or passed all levels action, both are success.
+            // TODO SUCCESS SOUND
+            //audioSource.pitch = 1; // Set pitch to 1, because the pitch of the audioSource may be modified.
+            //audioSource.PlayOneShot(successSoundClip); // Play success sound clip. Because game is ended with complete or passed all levels action, both are success.
+            
             if (levelIndicatorTarget.text != "END") // If right level indicator's text is NOT "END", that means there is more levels after this level.
             {
                 endingType = EndingTypes.COMPLETE; // Set ending action.
@@ -390,8 +390,9 @@ public class GameManager : MonoBehaviour
         if (playerTimeCounter > 1f) // If time counter is greater than 1, that means the animation curve ended and it is needed to reset. I did not use PingPong effect of animation curve, because to make splash and bounce sound effects, a single time operation must be launched and this method achieves that easily.
         {
             playerTimeCounter = 0f; // Reset counter.
-            audioSource.pitch = 1f; // Set pitch to 1. It may be modified.
-            audioSource.PlayOneShot(bounceSoundClip); // Play bounce sound effect, because jump curve has 0 value at 0 time, and this is starting of the bounce.
+            // TODO Bounce sound
+            //audioSource.pitch = 1f; // Set pitch to 1. It may be modified.
+            //audioSource.PlayOneShot(bounceSoundClip); // Play bounce sound effect, because jump curve has 0 value at 0 time, and this is starting of the bounce.
             var splash = new GameObject("splash").transform; // Generate a game object to use as splash parent.
             splash.parent = generatedLevelSteps.Count != 1 ? generatedLevelSteps[0].step.GetChild(0).GetChild(0) : generatedLevelSteps[0].step; // If the first step is normal step, the parent is generatedLevelSteps[0].step.GetChild(0).GetChild(0) (This location is under of the platform mesh object). If the generatedLevelSteps = 1, that means this step is an ending platform and the parent is needed to assign differently. The parent must be generatedLevelSteps[0].step.
             splash.SetAsLastSibling(); // Set the sibling index as last, because other siblings can be used by other codes by using child indexing.
@@ -536,8 +537,8 @@ public class GameManager : MonoBehaviour
         {
             if (isObstacleHit && !isBreakingBonusConsuming) // Did the player hit any obstacle and is meteor mode deactivated?
             {
-                audioSource.pitch = 0.6f; // Set pitch of the audioSource, this is for making sound effect deeper.
-                audioSource.PlayOneShot(playerBreakSoundClip); // Play sound effect.
+                // TODO BREAK SOUND
+                
                 endingType = EndingTypes.GAMEOVER; // The player hit to an obstacle and the game has finished.
                 GameEnd(); // Call game end to end. (like showing end UI)
             }
@@ -548,8 +549,7 @@ public class GameManager : MonoBehaviour
             if (isEndingPlatformGenerated && generatedLevelSteps.Count < 25) CenterCylinder.position = new Vector3(0, CenterCylinder.localScale.y + generatedLevelSteps.Last<StepReferenceToGame>().step.position.y, 0);
             if (generatedLevelSteps.Count == 1) // generatedLevelSteps count is equal to 1, that means there is no normal step, there is only ending platform. End game finished with complete or passed all levels action.
             {
-                audioSource.pitch = 1; // Set pitch to 1, because the pitch of the audioSource may be modified.
-                audioSource.PlayOneShot(successSoundClip); // Play success sound clip. Because game is ended with complete or passed all levels action, both are success.
+                // TODO SUCCESS SOUND
                 if (levelIndicatorTarget.text != "END") // If right level indicator's text is NOT "END", that means there is more levels after this level.
                 {
                     endingType = EndingTypes.COMPLETE; // Set ending action.
@@ -588,8 +588,10 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        audioSource.pitch = 1 + (isBreakingBonusConsuming ? 0 : bonusBreakingTime / breakingBonusMax) * stepBreakingSoundEffectPitchMultiplier; // Set pitch of audioSource according to bonusBreakingTime value, with this way, while bonusBreakingTime is increasing, the breaking sound effect becomes thinner. But isBreakingBonusConsuming is true, the meteor sound effect must not be pinched, so if isBreakingBonusConsuming is true, this value becomes 1 + 0.
-        audioSource.PlayOneShot(isBreakingBonusConsuming ? meteorBreakSoundClip : breakSoundClip); // Play meteor or break sound effect according to isBreakingBonusConsuming.
+        // TOOO SOUNDS
+        //audioSource.pitch = 1 + (isBreakingBonusConsuming ? 0 : bonusBreakingTime / breakingBonusMax) * stepBreakingSoundEffectPitchMultiplier; // Set pitch of audioSource according to bonusBreakingTime value, with this way, while bonusBreakingTime is increasing, the breaking sound effect becomes thinner. But isBreakingBonusConsuming is true, the meteor sound effect must not be pinched, so if isBreakingBonusConsuming is true, this value becomes 1 + 0.
+        //audioSource.PlayOneShot(isBreakingBonusConsuming ? meteorBreakSoundClip : breakSoundClip); // Play meteor or break sound effect according to isBreakingBonusConsuming.
+        
         Destroy(step.gameObject, stepDestroyTime); // Destroy this step after stepDestroyTime time.
 
         for (int i = 0; i < step.childCount; i++) // For loop does this for each platform of this step.
