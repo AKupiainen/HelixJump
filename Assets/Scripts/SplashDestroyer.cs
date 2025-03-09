@@ -1,32 +1,27 @@
 ﻿using UnityEngine;
+using DG.Tweening;
 
 public class SplashDestroyer : MonoBehaviour
 {
-    private int _halfTurns = 0;
-    private float _lastAngle = float.NaN;
+    [SerializeField] private float _fadeDuration = 2f; // Duration of the fade
+    private SpriteRenderer _spriteRenderer;
 
-    private void Update()
+    private void Start()
     {
-        float angle = Vector3.SignedAngle(-Vector3.forward, transform.position, Vector3.up);
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        FadeOutAndDestroy();
+    }
 
-        if (float.IsNaN(_lastAngle))
+    private void FadeOutAndDestroy()
+    {
+        if (_spriteRenderer != null)
         {
-            _lastAngle = angle;
-            return;
+            _spriteRenderer.DOFade(0f, _fadeDuration).OnComplete(DestroyObject);
         }
+    }
 
-        float angleDifference = Mathf.DeltaAngle(_lastAngle, angle);
-
-        if (Mathf.Abs(angleDifference) >= 180f)
-        {
-            _halfTurns++;
-
-            if (_halfTurns >= 3)
-            {
-                Destroy(gameObject);
-            }
-        }
-
-        _lastAngle = angle;
+    private void DestroyObject()
+    {
+        Destroy(gameObject);
     }
 }
