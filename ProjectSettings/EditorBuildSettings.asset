@@ -5,10 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Scenes/Bootstrap.unity
-    guid: 828b152c18f0047fa8ca9fc2e281d551
-  - enabled: 1
-    path: Assets/Scenes/Game.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
+    path: Assets/CHN Games/Helix Smash/Scenes/GameScene.unity
+    guid: 8ac3298da47e59243908741e48b2ef15
   m_configObjects: {}

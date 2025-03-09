@@ -1,38 +1,65 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public Dictionary<Transform,bool> touchingPlatforms = new Dictionary<Transform, bool>(); // Holds touched platforms as dictionary. (Key => step transform, value => is obstacle bool information)
-    void OnTriggerEnter(Collider other)
+    private readonly Dictionary<Transform, bool> _touchingPlatforms = new();
+
+    private const string DeletedStepTag = "WillBeDeletedStep";
+
+    public Dictionary<Transform, bool> TouchingPlatforms => _touchingPlatforms;
+
+    private void OnTriggerEnter(Collider other)
     {
         TouchingAPlatform(other);
     }
-    void OnTriggerStay(Collider other)
+
+    private void OnTriggerStay(Collider other)
     {
         TouchingAPlatform(other);
     }
-    /*void OnTriggerExit(Collider other)
+
+    private void OnTriggerExit(Collider other)
     {
-        var step = other.transform.parent.parent; // Gets transform of the step.
-        if (step.tag == "WillBeDeletedStep") return; // If this step marked as WillBeDeletedStep, return. This is needed for not using the garbage steps.
-        if (touchingPlatforms.ContainsKey(step)) // If this step is added before.
+        Transform step = GetStepTransform(other);
+        
+        if (step == null)
         {
-            touchingPlatforms.Remove(step); // Remove this step from dictionary list, because the player is not touching it.
+            return;
         }
-    }*/
-    void TouchingAPlatform(Collider other)
+
+        if (_touchingPlatforms.ContainsKey(step))
+        {
+            TouchingPlatforms.Remove(step);
+        }
+    }
+
+    private void TouchingAPlatform(Collider other)
     {
-        var step = other.transform.parent.parent; // Gets transform of the step.
-        if (step.tag == "WillBeDeletedStep") return; // If this step marked as WillBeDeletedStep, return. This is needed for not using the garbage steps.
-        if (!touchingPlatforms.ContainsKey(step)) // If this step is  not added before.
+        Transform step = GetStepTransform(other);
+        if (step == null)
         {
-            touchingPlatforms.Add(step, other.transform.parent.name.Split('_')[1] == "1"); // If the platform has "1" suffix in its name, it means this is an obstacle and the bool is true.
+            return;
         }
-        else // If this step is added before.
+
+        bool isObstacle = other.transform.parent.name.EndsWith("_1");
+        TouchingPlatforms[step] = isObstacle;
+    }
+
+    private Transform GetStepTransform(Collider other)
+    {
+        Transform step = other.transform.parent.parent;
+        
+        if (step == null)
         {
-            touchingPlatforms[step] = other.transform.parent.name.Split('_')[1] == "1"; // If the platform has "1" suffix in its name, it means this is an obstacle and the bool is true.
+            return null;
         }
+
+        if (step.CompareTag(DeletedStepTag))
+        {
+            return null;
+        }
+
+        return step;
     }
 }

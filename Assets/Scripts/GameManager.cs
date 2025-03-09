@@ -144,7 +144,6 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.SetInt("passed_levels", 1);
         }
         PlayerPrefs.Save();// End of  Section 1
-        ShuffleStars(); // Call ShuffleStars to generate stars
         LoadLevel((SceneManager.sceneCount == 1) ? PlayerPrefs.GetInt("passed_levels") : -1); // When LevelCreator scene is opened, the scene count becomes 2, so if scene count is 1, that means the gamescene is opened and load the level, else LoadLevel(-1) => That means, the LevelCreatorScene is opened and don't load level normally.
         meteorRandomValue = Random.Range(0, MeteorGenerateTimeCounterRandomMax); // Pick a random value for meteorRandomValue, this is needed for starting of the time counter.
         audioSource = GetComponent<AudioSource>(); // Get audio source component of GameManager object, this is needed for playing sound effects.
@@ -174,7 +173,6 @@ public class GameManager : MonoBehaviour
     }
     void Update()
     {
-        MovingStars(); // Moves the stars
         StepUpdate(); // Call SteUpdate to moving and deleting steps.
         if (Player != null) PlayerUpdate(); // If there is a player, call PlayerUpdate to move player object and break platforms.
     }
@@ -221,11 +219,7 @@ public class GameManager : MonoBehaviour
             if (GeneratedObjects != null) Destroy(GeneratedObjects.gameObject);
             GeneratedObjects = new GameObject("GeneratedObjects").transform;
         } // End of Section 4
-
-        var backgroundColorPair = BackgroundRandomColorPairs[Random.Range(0, BackgroundRandomColorPairs.Length)]; // Section 5 - Comment: Pick a background color pair randomly, get CameraConrol component of Camera and set it's bottom and top colors to background color pair's.
-        var cameraControl = Camera.GetComponent<CameraControl>();
-        cameraControl.bottom = backgroundColorPair.BackgroundColorBottom;
-        cameraControl.top = backgroundColorPair.BackgroundColorTop; // End of Section 5
+        
 
         if (levelNumber == -1) // Means the LevelCreatorScene is opened
         {
@@ -480,7 +474,6 @@ public class GameManager : MonoBehaviour
         breakBonus.fillAmount = normalizedBreakingBonus; // Set break bonus indicator filling amount.
         sceneLight.intensity = sceneLightCurve.Evaluate(normalizedBreakingBonus); // Set scene light intensity by evaluating curve.
         breakBonus.color = breakBonusColor.Evaluate(normalizedBreakingBonus); // Set break bonus indicator color by evaluating gradient.
-        Camera.GetComponent<CameraControl>().overrideMultiplier = normalizedBreakingBonus; // Override multiplier is equal to normalized breaking bonus value. It is needed to control amount of overriding meteor background color by using animation curves.
         overrideBottom = backgroundBottomColorTransient.Evaluate(normalizedBreakingBonus); // Meteor background bottom color
         overrideTop = backgroundTopColorTransient.Evaluate(normalizedBreakingBonus); // Meteor background top color
         isNotFirstMovingSteps = false; // It is used for increasing position precise of breaking effect. If the player does not touch the screen, it must be resetted.
@@ -539,7 +532,6 @@ public class GameManager : MonoBehaviour
             breakBonus.color = breakBonusColor.Evaluate(normalizedBreakingBonus); // Set break bonus indicator color by evalueating gradient.
             float offsetTime = (isBreakingBonusConsuming ? 0.6f : 0f); // If meteor mode is activated (isBreakingBonusConsuming = true), set 0.6 offset time.
             sceneLight.intensity = sceneLightCurve.Evaluate(normalizedBreakingBonus + offsetTime); // Set scene light by evalueating curve.
-            Camera.GetComponent<CameraControl>().overrideMultiplier = normalizedBreakingBonus + offsetTime; // Set override multiplier value
             overrideBottom = backgroundBottomColorTransient.Evaluate(normalizedBreakingBonus + offsetTime); // Set background bottom color 
             overrideTop = backgroundTopColorTransient.Evaluate(normalizedBreakingBonus + offsetTime); // Set background top color 
             PlatformBreakAndChecking(); // Check and break platform if needed.
@@ -558,44 +550,9 @@ public class GameManager : MonoBehaviour
         }
         meteorTimeCounter += Time.deltaTime; // Increase time counter.
     }
-    void ShuffleStars() // Generates Star Parent and triggers generating stars. 
-    {
-        if (StarParent != null) // If star parent is not null
-        {
-            Destroy(StarParent.gameObject); // Destroy it
-        }
-        StarParent = new GameObject("BackgroundStars").transform; // Generate new star parent object.
-        StarParent.position = StarGenerationPoint; // Set star parent position to StarGenerationPoint.
-        for (int i = 0; i < Random.Range(minStarCount, maxStarCount); i++) // Generates stars with random amount.
-        {
-            GenerateAStar(true); // Generates a star randomly.
-        }
-    }
-    void GenerateAStar(bool isFirstTime) // Generates one star. If isFirstTime is true, generates complete randomly on y axis, otherwise generates on Random.Range(-10,-5) y axis. This is needed for making stars moving continuously.
-    {
-        var star = Instantiate<GameObject>(StarSample, StarParent).transform; // Generate star object
-        star.localScale = Random.Range(starSizeMin, starSizeMax) * Vector3.one; // Set scale of star randomly.
-        var spriteRenderer = star.GetComponent<SpriteRenderer>(); // Get sprite renderer component.
-        spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, Random.Range(starAlphaTransparentMin, starAlphaTransparentMax)); // Set alpha of star sprite renderer randomly.
-        star.localPosition = StarGenerationPoint + new Vector3(Random.Range(-StarGenerationSize.x / 2, StarGenerationSize.x / 2), isFirstTime ? Random.Range(-StarGenerationSize.y / 2, StarGenerationSize.y / 2) : Random.Range(-10, -5), Random.Range(-StarGenerationSize.z / 2, StarGenerationSize.z / 2)); // Set position of star randomly.
-    }
-    void MovingStars() //Moves the stars
-    {
-        for (int i = 0; i < StarParent.childCount; i++) // For loop does for each star.
-        {
-            var t = StarParent.GetChild(i); // Get star by i index.
-            t.position += new Vector3(0, isBreakingBonusConsuming ? whenPlayerMeteorStarSpeed : normalStarSpeed, 0); // Moves up the stars.
-            if (t.position.y > 10f) // If the start position on y axis is greater than 10.
-            {
-                Destroy(t.gameObject); // Destroy this star.
-                GenerateAStar(false); // Generate a new star to replace with destroyed star.
-            }
-            t.LookAt(Camera); // Stars must look to camera to view perfectly circle.
-        }
-    }
     void PlatformBreakAndChecking() // Break platform and checks, also triggers break effect for steps.
     {
-        var touchedStepsDictionary = Player.GetComponent<PlayerController>().touchingPlatforms; // Touched steps information that comes from PlayerController component on Player. This information is collected by using Physic Engine. 
+        var touchedStepsDictionary = Player.GetComponent<PlayerController>().TouchingPlatforms; // Touched steps information that comes from PlayerController component on Player. This information is collected by using Physic Engine. 
         var touchedStepKeys = touchedStepsDictionary.Keys.ToArray<Transform>(); // touchedStepsDictionary is stored as Dictionary, so this line gets all keys as transform array.
         bool isObstacleHit = false; // This holds the Player is touching any obstacle platform. False is the initial value.
         for (int i = 0; i < touchedStepsDictionary.Count; i++) // For loop does this for each touch steps.
@@ -706,7 +663,6 @@ public class GameManager : MonoBehaviour
             Invoke("LevelEditorDelayedStop", 1); // Invokes LevelEditorDelayedStop to stop play mode as delayed.
         }
 #endif
-        if (SceneManager.sceneCount == 1) GetComponent<ADS>().ShowAd(); // If game is playing in game scene, trigger AD.
         if (secondChanceCoroutine != null) StopCoroutine(secondChanceCoroutine); // If second chance counter is working, stop it.
         bool isSecondChanceAsked = false;
 #if UNITY_ADS
